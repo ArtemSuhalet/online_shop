@@ -8,5 +8,8 @@ urlpatterns = [
     path('', CategoryView.as_view(), name='index'),
     path('register/', register_view, name='register'),
     path('logout/', AuthorLogoutView.as_view(), name='logout'),
-    path('login/', Login.as_view(template_name='login.html'), name='login')
+    path('login/', Login.as_view(template_name='login.html'), name='login'),
+    path('account.html', user_account, name='account'),
+    path('profile.html', UserEditFormView.as_view(), name='profile'),
+    
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

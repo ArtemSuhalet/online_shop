@@ -31,7 +31,7 @@ def register_view(request):  # +
             Profile.objects.create(user=user, username=username, full_name=full_name, phone=phone, email=email)
         return redirect('/')
 
-    return render(request, 'registr.html')
+    return render(request, 'register.html')
 
 
 class AuthorLogoutView(LogoutView):  # +
@@ -43,6 +43,34 @@ class Login(LoginView):
     """Вход в учетную запись"""
     def form_valid(self, form):
         return super().form_valid(form)
+
+
+def user_account(request):
+    full_name = Profile.objects.get(user=request.user)
+
+    avatar = Profile.objects.get(user=request.user)
+
+    return render(request, 'account.html', context={
+        'full_name': full_name,
+        'avatat': avatar
+    })
+
+class UserEditFormView(View):
+
+    def get(self, request):
+        #profile = Profile.objects.get(id=prof_id)
+        profile_form = ProfileForm(instance=request.user.profile)
+        return render(request, 'profile.html', context={'profile_form': profile_form})
+
+    def post(self, request):
+        #profile = Profile.objects.get(id=prof_id)
+        profile_form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
+
+        if profile_form.is_valid():
+            profile.save()
+            return HttpResponseRedirect('/')
+        return render(request, 'profile.html', context={'profile_form': profile_form})
+
 
 # ======================================================================================================================
 
