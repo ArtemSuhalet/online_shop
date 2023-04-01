@@ -1,243 +1,25 @@
-<!--END-->
-<!--END-->
-<!DOCTYPE html>
-<!--[if IE 7]>
-<html class="ie7" lang="ru">
-<![endif]-->
-<!--[if IE 8]>
-<html class="ie8" lang="ru">
-<![endif]-->
-<!--[if IE 9]>
-<html class="ie9" lang="ru">
-<![endif]-->
-<!--[if IE 10]>
-<html class="ie10" lang="ru">
-<![endif]-->
-<!--[if IE 11]>
-<html class="ie11" lang="ru">
-<![endif]-->
-<!--[if gt IE 11]><!-->
-<html lang="ru">
-<!--<![endif]-->
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
 
-<head>
-    <title>Megano</title>
-    <meta name="description" content="Описание страницы">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <link href="favicon.ico" rel="shortcut icon">
-    <link rel="preload" href="assets/fonts/Roboto/Roboto-Regular.woff" as="font">
-    <link rel="preload" href="assets/fonts/Roboto/Roboto-Italic.woff" as="font">
-    <link rel="preload" href="assets/fonts/Roboto/Roboto-Bold.woff" as="font">
-    <link rel="preload" href="assets/fonts/Roboto/Roboto-Bold_Italic.woff" as="font">
-    <link rel="preload" href="assets/fonts/Roboto/Roboto-Light.woff" as="font">
-    <link rel="preload" href="assets/fonts/Roboto/Roboto-Light_Italic.woff" as="font">
-    <link rel="stylesheet" href="assets/css/fonts.css?v=90329703">
-    <link rel="stylesheet" href="assets/css/basic.css?v=90329703">
-    <link rel="stylesheet" href="assets/css/extra.css?v=90329703">
-    <script src="assets/plg/CountDown/countdown.js"></script>
-    <!--[if lt IE 9]>
-  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-</head>
 
-<body class="Site">
-    <!--if lt IE 8
-  p.error-browser
-      | Ваш браузер&nbsp;
-      em устарел!&nbsp;
-      a(href="http://browsehappy.com/") Выберите новую версию
-          +s
-          | браузера здесь&nbsp;
-      | для правильного отображения сайта.
-  -->
-    <header class="Header">
-        <div class="ControlPanel">
-            <div class="wrap">
-                <div class="row ControlPanel-row">
-                    <div class="row-block">
-                        <div class="row ControlPanel-rowSplit">
-                            <div class="row-block hide_700">
-                                <ul class="menu menu_img menu_smallImg ControlPanel-menu">
-                                    <li class="menu-item"><a class="menu-link" href="#"><img src="assets/img/icons/socialHeader/tw.svg" alt="tw.svg" /></a>
-                                    </li>
-                                    <li class="menu-item"><a class="menu-link" href="#"><img src="assets/img/icons/socialHeader/in.svg" alt="in.svg" /></a>
-                                    </li>
-                                    <li class="menu-item"><a class="menu-link" href="#"><img src="assets/img/icons/socialHeader/pt.svg" alt="pt.svg" /></a>
-                                    </li>
-                                    <li class="menu-item"><a class="menu-link" href="#"><img src="assets/img/icons/socialHeader/mail.svg" alt="mail.svg" /></a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <nav class="row-block">
-                        <div class="row ControlPanel-rowSplit">
-                            <div class="row-block"><a class="ControlPanel-title" href="login.html">Вход</a>
-                                <a class="ControlPanel-title" href="registr.html">Регистрация</a>
-                            </div>
-                        </div>
-                    </nav>
-                </div>
-            </div>
-            <!--+div.menuModal#navigate
-      //    +menu([
-      //        ['Главная','index.html'],
-      //        ['Портфолио','index.html'],
-      //        ['Мои проекты','index.html'],
-      //        ['Контакты','index.html']
-      //    ], page === 'article'? 'Портфолио': 'Главная')._main
-      
-      block
-      -->
-        </div>
+{% block header %}
+{% include 'includes/header.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="Middle Middle_top">
+    <div class="Middle-top">
         <div class="wrap">
-            <div class="row Header-rowMain">
-                <div class="row-block Header-logo"><a class="logo" href="index.html"><img class="logo-image" src="assets/img/logo.png" alt="logo.png" /></a>
-                </div>
-                <nav class="row-block row-block_right Header-menu">
-                    <div class="menuModal" id="navigate">
-                        <ul class="menu menu_main">
-                            <li class="menu-item"><a class="menu-link" href="index.html">Главная</a>
-                            </li>
-                            <li class="menu-item"><span class="menu-label menu-label_success">Скидки</span><a class="menu-link" href="catalog.html">Каталог</a>
-                            </li>
-                            <li class="menu-item"><a class="menu-link" href="comparison.html">Сравнение</a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-                <div class="row-block">
-
-                    <div class="CartBlock">
-                        <div class="dropdown">
-                            <button class="dropbtn"><img class="CartBlock-img" src="assets/img/icons/loon-icon.svg" alt="loon-icon.svg" /></button>
-                            <div class="dropdown-content">
-                                <a class="dropdown-content-a" href="account.html">Личный кабинет</a>
-                                <a class="dropdown-content-a" href="account.html">Административный раздел</a>
-                                <a class="dropdown-content-a" href="account.html">Выход</a>
-                            </div>
-                        </div>
-                        <a class="CartBlock-block" href="cart.html"><img class="CartBlock-img" src="assets/img/icons/cart.svg" alt="cart.svg" /><span class="CartBlock-amount">0</span></a>
-                        <div class="CartBlock-block"><span class="CartBlock-price">0.00$</span>
-
-
-                        </div>
-                    </div>
-                </div>
-                <div class="row-block Header-trigger"><a class="menuTrigger" href="#navigate">
-                        <div class="menuTrigger-content">Показать навигацию
-                        </div><span></span><span></span><span></span>
-                    </a>
-                </div>
+            <div class="Middle-header">
+                <h1 class="Middle-title">{{ product.name }}</h1>
+                <ul class="breadcrumbs Middle-breadcrumbs">
+                    <li class="breadcrumbs-item"><a href="/">{% trans 'home' %}</a></li>
+                    <li class="breadcrumbs-item breadcrumbs-item_current"><span>Детальная инфа</span></li>
+                </ul>
             </div>
         </div>
-        <div class="Header-searchWrap">
-            <div class="wrap">
-                <div class="Header-categories">
-                    <div class="CategoriesButton">
-                        <div class="CategoriesButton-title">
-                            <div class="CategoriesButton-icon"><img src="assets/img/icons/allDep.svg" alt="allDep.svg" />
-                            </div><span class="CategoriesButton-text">Все категории</span>
-                            <div class="CategoriesButton-arrow">
-                            </div>
-                        </div>
-                        <div class="CategoriesButton-content">
-                            <div class="CategoriesButton-link"><a href="#">
-                                    <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/1.svg" alt="1.svg" />
-                                    </div><span class="CategoriesButton-text">Телевизоры</span>
-                                </a>
-                            </div>
-                            <div class="CategoriesButton-link"><a href="#">
-                                    <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/2.svg" alt="2.svg" />
-                                    </div><span class="CategoriesButton-text">Наушники</span>
-                                </a>
-                            </div>
-                            <div class="CategoriesButton-link"><a href="#">
-                                    <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/3.svg" alt="3.svg" />
-                                    </div><span class="CategoriesButton-text">Стиральные машины</span>
-                                </a><a class="CategoriesButton-arrow" href="#"></a>
-                                <div class="CategoriesButton-submenu"><a class="CategoriesButton-link" href="#">
-                                        <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/1.svg" alt="1.svg" />
-                                        </div><span class="CategoriesButton-text">Аксессуары</span>
-                                    </a><a class="CategoriesButton-link" href="#">
-                                        <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/2.svg" alt="2.svg" />
-                                        </div><span class="CategoriesButton-text">Чехлы</span>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="CategoriesButton-link"><a href="#">
-                                    <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/4.svg" alt="4.svg" />
-                                    </div><span class="CategoriesButton-text">Скидки!</span>
-                                </a>
-                            </div>
-                            <div class="CategoriesButton-link"><a href="#">
-                                    <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/5.svg" alt="5.svg" />
-                                    </div><span class="CategoriesButton-text">Электроника</span>
-                                </a>
-                            </div>
-                            <div class="CategoriesButton-link"><a href="#">
-                                    <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/6.svg" alt="6.svg" />
-                                    </div><span class="CategoriesButton-text">Фотоаппараты</span>
-                                </a>
-                            </div>
-                            <div class="CategoriesButton-link"><a href="#">
-                                    <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/7.svg" alt="7.svg" />
-                                    </div><span class="CategoriesButton-text">Фурнитура</span>
-                                </a><a class="CategoriesButton-arrow" href="#"></a>
-                                <div class="CategoriesButton-submenu"><a class="CategoriesButton-link" href="#">
-                                        <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/1.svg" alt="1.svg" />
-                                        </div><span class="CategoriesButton-text">Мобильные телефоны</span>
-                                    </a><a class="CategoriesButton-link" href="#">
-                                        <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/2.svg" alt="2.svg" />
-                                        </div><span class="CategoriesButton-text">Сумки</span>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="CategoriesButton-link"><a href="#">
-                                    <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/8.svg" alt="8.svg" />
-                                    </div><span class="CategoriesButton-text">Мобильные телефоны</span>
-                                </a>
-                            </div>
-                            <div class="CategoriesButton-link"><a href="#">
-                                    <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/9.svg" alt="9.svg" />
-                                    </div><span class="CategoriesButton-text">Микроволновые печи</span>
-                                </a>
-                            </div>
-                            <div class="CategoriesButton-link"><a href="#">
-                                    <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/10.svg" alt="10.svg" />
-                                    </div><span class="CategoriesButton-text">Кухонная техника</span>
-                                </a>
-                            </div>
-                            <div class="CategoriesButton-link"><a href="#">
-                                    <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/11.svg" alt="11.svg" />
-                                    </div><span class="CategoriesButton-text">Торшеры</span>
-                                </a><a class="CategoriesButton-arrow" href="#"></a>
-                                <div class="CategoriesButton-submenu"><a class="CategoriesButton-link" href="#">
-                                        <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/1.svg" alt="1.svg" />
-                                        </div><span class="CategoriesButton-text">Аксессуары</span>
-                                    </a><a class="CategoriesButton-link" href="#">
-                                        <div class="CategoriesButton-icon"><img src="assets/img/icons/departments/2.svg" alt="2.svg" />
-                                        </div><span class="CategoriesButton-text">Сумки</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="Header-searchLink"><img src="assets/img/icons/search.svg" alt="search.svg" />
-                </div>
-                <div class="Header-search">
-                    <div class="search">
-                        <form class="form form_search" action="#" method="post">
-                            <input class="search-input" id="query" name="query" type="text" placeholder="NVIDIA GeForce RTX 3060" />
-                            <button class="search-button" type="submit" name="search" id="search"><img src="assets/img/icons/search.svg" alt="search.svg" />Поиск
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+    </div>
     <div class="Middle Middle_top">
         <div class="Section">
             <div class="wrap">
@@ -245,108 +27,95 @@
                     <div class="ProductCard">
                         <div class="ProductCard-look">
                             <div class="ProductCard-photo">
-                                <img src="assets/img/content/home/bigGoods.png" alt="bigGoods.png" />
+                                <img src="{{ product.image_url }}" alt="product.jpg">
                             </div>
                             <div class="ProductCard-picts"><a class="ProductCard-pict ProductCard-pict_ACTIVE" href="assets/img/content/home/bigGoods.png"><img src="assets/img/content/home/bigGoods.png" alt="bigGoods.png" /></a><a class="ProductCard-pict" href="assets/img/content/home/slider.png"><img src="assets/img/content/home/slider.png" alt="slider.png" /></a><a class="ProductCard-pict" href="assets/img/content/home/videoca.png"><img src="assets/img/content/home/videoca.png" alt="videoca.png" /></a>
                             </div>
                         </div>
                         <div class="ProductCard-desc">
                             <div class="ProductCard-header">
-                                <h2 class="ProductCard-title">Barand New Phone Smart Busines
+                                <h2 class="ProductCard-title">{{ product.name }}
                                 </h2>
                                 <div class="ProductCard-info">
                                     <div class="ProductCard-cost">
-                                        <div class="ProductCard-price">$55.00
+                                        <div class="ProductCard-price">{{ product.price }}$
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="ProductCard-text">
-                                <ul>
-                                    <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit, eiusmod
-                                    </li>
-                                    <li>tempor incididunt ut labore et dolore magna aliqua. Lorem
-                                    </li>
-                                    <li>ipsum dolor sit ameabore et dolore magna aliqua. Lorem ipsum
-                                    </li>
-                                </ul>
+                                {{ product.description }}
                             </div>
                             <div class="ProductCard-cart">
-                                <div class="ProductCard-cartElement ProductCard-cartElement_amount">
-                                    <div class="Amount Amount_product">
-                                        <button class="Amount-remove" type="button">
-                                        </button>
-                                        <input class="Amount-input form-input" name="amount" type="text" value="1" />
-                                        <button class="Amount-add" type="button">
-                                        </button>
-                                    </div>
+                                <form method="post" action="{% url 'cart_add' product.id  %}">
+                                {{ cart_product_form }}
+                                {%  csrf_token %}
+
+                                <div class="ProductCard-cartElement">
+                                    <button type="submit" class="btn btn_primary">
+                                <img class="btn-icon" src="{% static 'assets/img/icons/card/cart_white.svg' %}" alt="cart_white.svg"><span class="btn-content">{% trans 'Add To Cart' %}</span>
+                                    </button>
                                 </div>
-                                <div class="ProductCard-cartElement"><a class="btn btn_primary" href="#modal_open"><img class="btn-icon" src="assets/img/icons/card/cart_white.svg" alt="cart_white.svg" /><span class="btn-content">Купить</span></a>
-                                </div>
-                                <div id="modal_open" class="my_modal">
-                                    <div class="my_modal-dialog">
-                                        <div class="my_modal-content">
-                                            <div class="my_modal-header">
-                                                <p class="my_modal-title">Поздравляем!</p>
-                                                <a href="#" title="Закрыть модальное окно" class="close">×</a>
-                                            </div>
-                                            <div class="my_modal-body">
-                                                <p>Товар успешно добавлен в корзину!</p>
+                                </form>
+                            </div>
+                            {% if messages %}
+                                {% for message in messages %}
+                                    {% if message.level == SUCCESS_ADD_TO_CART %}
+                                    <div id="modal_open" class="my_modal">
+                                        <div class="my_modal-dialog">
+                                            <div class="my_modal-content">
+                                                <div class="my_modal-header">
+                                                    <p class="my_modal-title">Поздравляем!</p>
+                                                    <a href="#" title="Закрыть модальное окно" class="close">×</a>
+                                                </div>
+                                                <div class="my_modal-body">
+                                                    <p>{{message}}</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                                    {% elif message.level == ERROR_ADD_TO_CART %}
+                                    <div class="send-product-request" style="text-align: right; margin-top: 10px; color: red;">{{message}}</div>
+                                    {%endif%}
+                                {%endfor%}
+                            {% endif %}
                             <div class="ProductCard-footer">
                                 <div class="ProductCard-tags">
                                     <strong class="ProductCard-tagsTitle">Тэги:
-                                    </strong><a href="#">Аксессуары</a>,<a href="#">Дизайн</a>,<a href="#">Игры</a>
+                                    </strong>
+                                    {% for tag in tags %}
+                                    <a href="{% url 'catalog_url' %}?main_tag={{tag.name}}">{{ tag }}</a>
+                                    {% endfor %}
+
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="Tabs Tabs_default">
-                        <div class="Tabs-links"><a class="Tabs-link_ACTIVE Tabs-link" href="#description"><span>Описание</span></a><a class="Tabs-link" href="#addit"><span>Характеристика</span></a><a class="Tabs-link" href="#reviews"><span>Отзывы (3)</span></a>
+                        <div class="Tabs-links"><a class="Tabs-link_ACTIVE Tabs-link" href="#description"><span>Описание</span></a><a class="Tabs-link" href="#addit"><span>Характеристика</span></a><a class="Tabs-link" href="#reviews"><span>Отзывы  (<span class="count_reviews">{{ reviews_count|default_if_none:"0" }}</span>)</span></a>
                         </div>
                         <div class="Tabs-wrap">
                             <div class="Tabs-block" id="description">
-                                <h2>Megano Store Hystory
-                                </h2>
-                                <p>Lorem ipsum dolor sit amet, consectetuer&#32;
-                                    <strong>adipiscing
-                                    </strong>&#32;elit doli. Aenean commodo ligula eget dolor. Aenean massa.&#32;<a href="#">Cumtipsu</a>&#32;sociis natoque penatibus et magnis dis parturient montesti, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eutu, pretiumem.
-                                </p><img class="pict pict_right" src="assets/img/content/home/bigGoods.png" alt="bigGoods.png" />
-                                <ul>
-                                    <li>Lorem ipsum dolor sit amet, consectetuer
-                                    </li>
-                                    <li>adipiscing elit doli.&#32;<em>Aenean</em>&#32;commodo ligula
-                                    </li>
-                                    <li>eget dolor. Aenean massa. Cumtipsu sociis
-                                    </li>
-                                    <li>natoque penatibus et magnis dis parturient
-                                    </li>
-                                    <li>montesti, nascetur ridiculus mus. Donec
-                                    </li>
-                                    <li>quam felis, ultricies nec, pellentesque eutu
-                                    </li>
-                                </ul>
+                               {{ product.description }}
                                 <div class="clearfix">
                                 </div>
                                 <div class="table">
                                     <table>
-                                        <tr>
-                                            <th>Характеристика
+                                        <tbody><tr>
+                                            <th>{% trans 'Описание' %}
                                             </th>
-                                            <th>Значение
+                                            <th>{% trans 'Значение' %}
                                             </th>
                                         </tr>
+                                        {% for spec in specifications %}
                                         <tr>
-                                            <td>Тип устройства
+                                            <td>{{ spec.product }}
                                             </td>
-                                            <td>Ноутбук
+                                            <td>{{ spec.value|truncatechars:5 }}
                                             </td>
                                         </tr>
-                                    </table>
+
+                                    </tbody></table>
                                 </div>
                             </div>
                             <div class="Tabs-block" id="sellers">
@@ -356,62 +125,108 @@
                             <div class="Tabs-block" id="addit">
                                 <div class="Product-props">
                                     <div class="Product-prop">
-                                        <strong>Lorem
-                                        </strong><span> Pfizer</span>
+                                        <strong>{{ spec.product }}
+                                        </strong><span> {{ spec.value }}</span>
                                     </div>
-                                    <div class="Product-prop">
-                                        <strong>ipsum
-                                        </strong><span> Lorem ipsum dolor sit</span>
-                                    </div>
-                                    <div class="Product-prop">
-                                        <strong>dolor sit
-                                        </strong><span> 5 ans</span>
-                                    </div>
-                                    <div class="Product-prop">
-                                        <strong>psum dolo
-                                        </strong><span> 2–3 jours</span>
-                                    </div>
+                                        {% endfor %}
                                 </div>
                             </div>
                             <div class="Tabs-block" id="reviews">
+                                {% if comments %}
                                 <header class="Section-header">
-                                    <h3 class="Section-title">1 отзыв
+                                    <h3 class="Section-title"><span class="count_reviews">{{ reviews_count|default_if_none:"0" }}</span>Отзывы
                                     </h3>
                                 </header>
-                                <div class="Comments">
-                                    <div class="Comment">
-                                        <div class="Comment-column Comment-column_pict">
-                                            <div class="Comment-avatar">
-                                            </div>
-                                        </div>
-                                        <div class="Comment-column">
-                                            <header class="Comment-header">
-                                                <div>
-                                                    <strong class="Comment-title">Александра Бровина
-                                                    </strong><span class="Comment-date">Декабрь 25&#32;&#32;/&#32;&#32;2017&#32;&#32;/&#32;&#32;22:50</span>
+                                {% endif %}
+                                <form class="form" name="page-filter" action="{% url 'get_reviews' %}" method="get">
+                                    <div class="Comments comments-js">
+                                        <div id="comments" class="Comments">
+                                            <input type="hidden" name="slug" value="{{ product.slug }}">
+                                        {% for comment in comments %}
+                                            <div class="Comment">
+                                                <div class="Comment-column Comment-column_pict">
+                                                    <div class="Comment-avatar" style="background-image: url('{{ comment.user.avatar_url }}'); background-size: cover;">
+                                                    </div>
                                                 </div>
-                                            </header>
-                                            <div class="Comment-content">Lorem ipsum dolor sit amet, consectetuer adipiscing elit doli. Aenean commodo ligula eget dolor. Aenean massa. Cumtipsu sociis natoque penatibus et magnis dis parturient montesti, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eutu, pretiumem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justotuio, rhoncus ut loret, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus element semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae.
-                                            </div>
-                                        </div>
+                                                <div class="Comment-column">
+                                                    <header class="Comment-header">
+                                                        <div>
+                                                            <strong class="Comment-title">{{ comment.author }}
+                                                            </strong><span class="Comment-date">{{ comment.added|date:"F / d / o G:i" }}</span>
+                                                        </div>
+                                                        </header>
+                                                        <div class="Comment-content">{{ comment.content }}
+                                                        </div>
+                                                    </div>
+                                                  </div>
+                                                  {% endfor %}
+                                                    </div>
+                                                  {% if comments.paginator.num_pages > 1 %}
+                                                    <button type="Submit" id="btn_page" class="btn btn_default btn_sm">
+                                                    <select id="id_page" name="page" multiple>
+                                                        {% if comments.has_previous %}
+                                                        <option class="btn btn_default btn_sm" value="1">1</option>
+                                                        <option class="btn btn_default btn_sm" value="{{ comments.previous_page_number }}">&laquo; </option>
+                                                        {% endif %}
+                                                        <option class="btn btn_default btn_sm active" value="{{ comments.number }}">{{ comments.number }}</option>
+                                                        {% if comments.has_next %}
+                                                        <option class="btn btn_default btn_sm" value="{{comments.next_page_number }}"> &raquo;</option>
+                                                        <option class="btn btn_default btn_sm" value="{{ comments.paginator.num_pages }}"> &raquo;&raquo;</option>
+                                                        {% endif %}
+                                                    </select>
+                                                        </button>
+                                                  {% endif %}
                                     </div>
-                                </div>
-                                <header class="Section-header Section-header_product">
-                                    <h3 class="Section-title">Добавить отзыв
-                                    </h3>
-                                </header>
-                                <div class="Tabs-addComment">
-                                    <form class="form" action="#" method="post">
+                                </form>
+                                    <header class="Section-header Section-header_product">
+                                      <h3 class="Section-title">{% trans 'Add Review' %}
+                                      </h3>
+                                    </header>
+                                    <div class="Tabs-addCommentreview-form ">
+                                    {% if request.user.is_authenticated %}
+                                      <form class="form" id="comment-form" action="{% url 'post_review'  %}" method="post">
+                                          {% csrf_token %}
+                                          <input type="hidden" name="user" value="{{ request.user.id }}">
+                                          {{ form.errors.user }}
+                                          <input type="hidden" name="product" value="{{ product.id }}">
+                                           <input id="id_slug_post" type="hidden" name="slug" value="{{ product.slug }}">
+                                          {{ form.errors.product }}
                                         <div class="form-group">
-                                            <textarea class="form-textarea" name="review" id="review" placeholder="Отзыв"></textarea>
+                                          <textarea class="form-textarea" name="content" id="content" required placeholder="Review" style="width: 1143px; height: 117px;"></textarea>
+                                            {{ form.errors.content }}
                                         </div>
+                                        <div class="form-group">
+                                          <div class="row" style="margin-left: 0;">
+                                            <div class="row-block">
+                                              <input class="form-input" id="author" name="author" type="text" placeholder="Name" required>
+                                                {{ form.errors.author }}
+                                            </div>
+                                            <div class="row-block">
+                                              <input class="form-input" id="email" name="email" type="text" readonly value="{{ request.user.email }}" placeholder="Email">
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="form-group custom_register_name-block">
+                                          <button class="btn btn_muted"  type="submit" >{% trans 'Submit Review' %}
+                                          </button>
+                                          <div class="input-rating">
+                                              <span>{% trans 'Your Rating:' %} </span>
+                                              <div class="rating">
+                                                  <input id="star5" name="rating" value="5" type="radio"><label for="star5">☆</label>
+                                                  <input id="star4" name="rating" value="4" type="radio"><label for="star4">☆</label>
+                                                  <input id="star3" name="rating" value="3" type="radio"><label for="star3">☆</label>
+                                                  <input id="star2" name="rating" value="2" type="radio"><label for="star2">☆</label>
+                                                  <input id="star1" name="rating" value="1" type="radio"><label for="star1">☆</label>
+                                              </div>
+                                          </div>
+                                        </div>
+                                      </form>
+                                      <div class="send-product-request" id="rating_error" style="color: red; text-align: right;">{{rating_error}}</div>
+                                      {% else %}
+                                      <div>{% trans 'Please' %} <a href="{% url 'login' %}">{% trans 'sign-in' %}</a> {% trans 'or' %} <a
+                                              href="{% url 'register' %}">{% trans 'registering' %}</a> {% trans 'for leave the comments on the site.' %}</div>
+                                    {% endif %}
 
-                                        <div class="form-group">
-                                            <button class="btn btn_muted" type="submit">Отправить отзыв
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -420,58 +235,10 @@
             </div>
         </div>
     </div>
-    <footer class="Footer">
-        <div class="wrap">
-            <div class="row Footer-main">
-                <div class="row-block"><a class="logo Footer-logo" href="index.html"><img class="logo-image" src="assets/img/logo_footer.png" alt="logo_footer.png" /></a>
-                </div>
-                <div class="row-block">
-                    <strong class="Footer-title">Навигация
-                    </strong>
-                    <ul class="menu menu_vt Footer-menu">
-                        <li class="menu-item"><a class="menu-link" href="index.html">Главная</a>
-                        </li>
-                        <li class="menu-item"><a class="menu-link" href="catalog.html">Каталог</a>
-                        </li>
-                        <li class="menu-item"><a class="menu-link" href="comparison.html">Сравнение</a>
-                        </li>
-                        <li class="menu-item"><a class="menu-link" href="account.html">Профиль</a>
-                        </li>
+</div>
 
-                    </ul>
-                </div>
-                <div class="row-block">
-                    <strong class="Footer-title">Контакты
-                    </strong>
-                    <p>Phone: 8.800.200.600<br>Email: xxx@meg.com<br>
-                    </p>
-                    <ul class="menu menu_img menu_smallImg Footer-menuSoc">
-                        <li class="menu-item"><a class="menu-link" href="#"><img src="assets/img/icons/socialFooter/fb.svg" alt="fb.svg" /></a>
-                        </li>
-                        <li class="menu-item"><a class="menu-link" href="#"><img src="assets/img/icons/socialFooter/tw.svg" alt="tw.svg" /></a>
-                        </li>
-                        <li class="menu-item"><a class="menu-link" href="#"><img src="assets/img/icons/socialFooter/in.svg" alt="in.svg" /></a>
-                        </li>
-                        <li class="menu-item"><a class="menu-link" href="#"><img src="assets/img/icons/socialFooter/pt.svg" alt="pt.svg" /></a>
-                        </li>
-                        <li class="menu-item"><a class="menu-link" href="#"><img src="assets/img/icons/socialFooter/mail.svg" alt="mail.svg" /></a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </footer>
-    <!--+Middle-->
-    <!--    +div.-top-->
-    <!--        +breadcrumbs('Главная','Портфолио')-->
-    <!--    +Article('portfolio')-->
-    <!---->
-    <script src="assets/plg/jQuery/jquery-3.5.0.slim.min.js"></script>
-    <script src="assets/plg/form/jquery.form.js"></script>
-    <script src="assets/plg/form/jquery.maskedinput.min.js"></script>
-    <script src="assets/plg/range/ion.rangeSlider.min.js"></script>
-    <script src="assets/plg/Slider/slick.min.js"></script>
-    <script src="assets/js/scripts.js"></script>
-</body>
+{% endblock %}
 
-</html>
+{% block footer %}
+{% include 'includes/footer.html' %}
+{% endblock %}

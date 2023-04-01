@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -26,12 +28,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'my_store_app',
     'rest_framework',
+    'taggit',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    #'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
+    #'django.middleware.cache.FetchFromCacheMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -51,10 +56,17 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'my_store_app.context_processors.cart',
             ],
         },
     },
 ]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+    }
+}
 
 WSGI_APPLICATION = 'online_store.wsgi.application'
 
@@ -105,10 +117,20 @@ USE_TZ = True
 
 LOGIN_REDIRECT_URL = '/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, "static"),
+# ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+CART_SESSION_ID = 'cart'
+
+
+
+# Custom messages codes
+SUCCESS_ADD_TO_CART = 210
+ERROR_ADD_TO_CART = 310

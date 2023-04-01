@@ -9,7 +9,7 @@
                                 <ul class="menu menu_img menu_smallImg ControlPanel-menu">
                                     <li class="menu-item"><a class="menu-link" href="#"><img src="{% static 'assets/img/icons/socialHeader/tw.svg' %}" alt="tw.svg" /></a>
                                     </li>
-                                    <li class="menu-item"><a class="menu-link" href="#"><img src="{% static 'assets/img/icons/socialHeader/in.svg' %}" alt="in.svg" /></a>
+                                    <li class="menu-item"><a class="menu-link" href="https://www.linkedin.com/in/artem-sukhalet/"><img src="{% static 'assets/img/icons/socialHeader/in.svg' %}" alt="in.svg" /></a>
                                     </li>
                                     <li class="menu-item"><a class="menu-link" href="#"><img src="{% static 'assets/img/icons/socialHeader/pt.svg' %}" alt="pt.svg" /></a>
                                     </li>
@@ -32,16 +32,7 @@
                     </nav>
                 </div>
             </div>
-            <!--+div.menuModal#navigate
-      //    +menu([
-      //        ['Главная','index.html'],
-      //        ['Портфолио','index.html'],
-      //        ['Мои проекты','index.html'],
-      //        ['Контакты','index.html']
-      //    ], page === 'article'? 'Портфолио': 'Главная')._main
 
-      block
-      -->
         </div>
         <div class="wrap">
             <div class="row Header-rowMain">
@@ -50,9 +41,12 @@
                 <nav class="row-block row-block_right Header-menu">
                     <div class="menuModal" id="navigate">
                         <ul class="menu menu_main">
-                            <li class="menu-item"><a class="menu-link" href="index.html">Главная</a>
+                            <li class="menu-item"><a class="menu-link" href="/">Главная</a>
                             </li>
-                            <li class="menu-item"><span class="menu-label menu-label_success">Скидки</span><a class="menu-link" href="catalog.html">Каталог</a>
+                            <li>
+
+                                <a class="menu-link" href="{% url 'catalog_url' %}">Каталог</a>
+
                             </li>
                             <li class="menu-item"><a class="menu-link" href="comparison.html">Сравнение</a>
                             </li>
@@ -65,14 +59,20 @@
                         <div class="dropdown">
                             <button class="dropbtn"><img class="CartBlock-img" src="{% static 'assets/img/icons/loon-icon.svg' %}" alt="loon-icon.svg" /></button>
                             <div class="dropdown-content">
-                                <a class="dropdown-content-a" href="account.html">Личный кабинет</a>
+                                <a class="dropdown-content-a" href="{% url 'account' %}">Личный кабинет</a>
+                                {% if request.user.is_superuser %}
                                 <a class="dropdown-content-a" href="account.html">Административный раздел</a>
+                                {% endif %}
                                 <a class="dropdown-content-a" href="/logout/">Выход</a>
                             </div>
                         </div>
-                        <a class="CartBlock-block" href="cart.html"><img class="CartBlock-img" src="{% static 'assets/img/icons/cart.svg' %}" alt="cart.svg" /><span class="CartBlock-amount">0</span></a>
-                        <div class="CartBlock-block"><span class="CartBlock-price">0.00$</span>
-
+                        {%if cart|length > 0%}
+                        <a class="CartBlock-block" href="{% url 'cart_detail' %}"><img class="CartBlock-img" src="{% static 'assets/img/icons/cart.svg' %}" alt="cart.svg" /><span class="CartBlock-amount">{{ cart|length }}</span></a>
+                        <div class="CartBlock-block"><span class="CartBlock-price">{{ cart.get_total_price }}$</span>
+                        {%else%}
+                            <a class="CartBlock-block" href="{% url 'cart_detail' %}"><img class="CartBlock-img" src="{% static 'assets/img/icons/cart.svg' %}" alt="cart.svg" /><span class="CartBlock-amount">0</span></a>
+                            <div class="CartBlock-block"><span class="CartBlock-price">$</span>
+                        {% endif %}
 
                         </div>
                     </div>
