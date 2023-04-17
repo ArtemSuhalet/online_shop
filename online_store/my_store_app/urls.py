@@ -15,20 +15,29 @@ urlpatterns = [
     path('account/', account_view, name='account'),
     path('profile/', UserEditFormView.as_view(), name='profile'),
     path('catalog/', FullCatalogView.as_view(), name="catalog_url"),
-    #path('async_catalog/', AllCardForAjax.as_view(), name="ajax_full"),
     path('product/<slug:slug>/', ProductDetailView.as_view(), name='product'),
     path('get_reviews/', get_reviews, name='get_reviews'),
     path('post_review/', post_review, name='post_review'),
     path('add_viewed/', add_viewed, name='add_viewed'),
     #корзина
-    # path('cart/', CartView.as_view(), name='cart_detail'),
-    # path('cart/<int:product_id>', CartView.as_view(), name='cart_detail_post'),
-    # path('add/<int:product_id>/', CartAdd.as_view(), name='cart_add'),
-    # path('add/<int:product_id>/', CartAdd.as_view(), name='cart_add_many'),
-    # path('remove/<int:product_id>/', CartRemove.as_view(), name='cart_remove'),
-    # path('clear/', cart_clear, name='cart_clear'),
     path('cart', cart_detail, name='cart_detail'),
     path('add/<int:product_id>/', cart_add, name='cart_add'),
     path('remove/<int:product_id>/', cart_remove, name='cart_remove'),
+    #оформление заказа
 
+    path('step1/', orderstepone, name='order_step_one'),
+    path('step11/', OrderStepOneAnonym.as_view(), name='order_step_one_anonymous'),
+    path('step2/<int:order_id>/', ordersteptwo, name='order_step_two'),
+    path('step3/<int:order_id>/', OrderStepThree.as_view(), name='order_step_three'),
+    path('step4/<int:order_id>/', OrderStepFour.as_view(), name='order_step_four'),
+    # оплата
+    path('payment/<int:order_id>/', PaymentView.as_view(), name='payment'),
+    path('paymentcard/<int:order_id>/', PaymentWithCardView.as_view(), name='payment_with_card'),
+    path('paymentaccount/<int:order_id>/', PaymentWithAccountView.as_view(), name='payment_with_account'),
+    path('done/', payment_done, name='payment_done'),
+    path('payment_process/<int:order_id>/', payment_process, name='payment_process'),
+    path('canceled/', payment_canceled, name='payment_canceled'),
+    #history
+    path('order_list/', HistoryOrderView.as_view(), name='order_list'),
+    path('history_detail/<int:order_id>', HistoryOrderDetail.as_view(), name='history_detail'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

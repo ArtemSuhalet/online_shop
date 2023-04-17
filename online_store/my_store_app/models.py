@@ -196,7 +196,7 @@ class Order(models.Model):
                                  verbose_name=_('customer'))
     fio = models.CharField(max_length=100, null=True, blank=True, verbose_name=_('name and lastname'))
 
-    phone_valid = RegexValidator(regex=r'^\+?1?\d{9,15}$',
+    phone_valid = RegexValidator(regex=r'^\+?1?\d{6,15}$',
                                  message=' '.join([str(_('номер телефона необходимо вводить в формате:')), '+999999999',
                                                    str(_('до 15 символов.'))]))
     phone = models.CharField(max_length=16, validators=[phone_valid],
@@ -229,7 +229,7 @@ class Order(models.Model):
         """Метод получения общей стоимости товаров в заказе"""
         total = Decimal(0.00)
         for product in self.order_products.all():
-            total += product.product.price * product.quantity
+            total += product.final_price * product.quantity + product.order.delivery_cost
         return Decimal(total)
 
 
@@ -292,17 +292,21 @@ class ViewedProduct(models.Model):
         verbose_name_plural = _('viewed products')
 
 class Payment(models.Model):
-    number = models.IntegerField(default=0, verbose_name='номер счета')
-    name = models.TextField(max_length=30, default='не указан')
+    number_valid = RegexValidator(regex=r'^\+?1?\d{6,8}$',
+                                 message=' '.join([str(_('номер  необходимо вводить в формате:')), '999999999',
+                                                   str(_('до 8 символов.'))]))
+    number = models.IntegerField(default=0, validators=[number_valid], verbose_name='номер счета')
+    name = models.TextField(null=True, max_length=30, default='не указан')
     month = models.DateField(auto_now_add=True)
     year = models.DateField(auto_now_add=True)
     code = models.IntegerField(default=0, verbose_name='код оплаты')
+
 
     class Meta:
         verbose_name = 'Оплата'
         verbose_name_plural = 'Оплата'
 
     def __str__(self):
-        return self.name
+        return "%s"%self.name
 
 

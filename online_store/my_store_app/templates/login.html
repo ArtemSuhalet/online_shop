@@ -1,29 +1,8 @@
-<!--END-->
 {% extends 'base.html' %}
 {% load static %}
-<!--END-->
-<!DOCTYPE html>
-
-<!--[if IE 7]>
-<html class="ie7" lang="ru">
-<![endif]-->
-<!--[if IE 8]>
-<html class="ie8" lang="ru">
-<![endif]-->
-<!--[if IE 9]>
-<html class="ie9" lang="ru">
-<![endif]-->
-<!--[if IE 10]>
-<html class="ie10" lang="ru">
-<![endif]-->
-<!--[if IE 11]>
-<html class="ie11" lang="ru">
-<![endif]-->
-<!--[if gt IE 11]><!-->
-<html lang="ru">
-<!--<![endif]-->
-
-
+{% block header %}
+{% include 'includes/header.html' %}
+{% endblock %}
 
 {% block content %}
 <body class="Site">
@@ -35,7 +14,7 @@
                 <div class="clear"></div>
 
 
-                <form action="/login/" method="post">
+                <form action="{% url 'login' %}" method="post">
                     {% csrf_token %}
                     <div>
                         <input class="user-input" type="text" name="username" id="name" placeholder="Логин" />
@@ -48,7 +27,7 @@
                         <input type="submit" value="Войти" />
                     </div>
                     <a class="forgot-label" href="e-mail.html">Забыли пароль?</a>
-                    <a class="registr" href="registr/">Регистрация</a>
+                    <a class="registr" href="{% url 'register' %}">Регистрация</a>
                 </form>
             </div>
 

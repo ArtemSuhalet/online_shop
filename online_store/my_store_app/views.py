@@ -1,30 +1,36 @@
+import datetime
+import re
+import time
 from typing import Dict, Callable, Union, Iterable
 from django import template
 from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.http import HttpRequest, JsonResponse, HttpResponseRedirect
+from django.http import HttpRequest, JsonResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy, reverse
-from django.views import View
-from django.views.generic import DetailView
+from django.views import View, generic
+from django.views.generic import DetailView, ListView
 from my_store_app.models import *
 from my_store_app.forms import *
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import LogoutView, LoginView
 from django.contrib.auth.models import User
 import os
+import random
 from my_store_app.services.serv_goods import CatalogByCategoriesMixin
 from my_store_app.services.good_detail import CurrentProduct, context_pagination
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 #from my_store_app.services.cart_serv import CartService, check_stock, DecimalEncoder, AnonymCart
-
+#import braintree
 from my_store_app.services.serv_goods import get_categories
 
 from my_store_app.services.cart import Cart
+
+from my_store_app.models import Order
 
 
 # ====================регистрация и аутентификация =====================================================================
@@ -34,7 +40,7 @@ def register_view(request):  # +
     """Функция регистрации нового пользователя"""
 
     if request.method == 'POST':
-        form = AuthorRegisterForm(request.POST)
+        form = AuthorRegisterForm(request.POST, request.FILES)
         if form.is_valid():
             full_name = form.cleaned_data.get('full_name')
             phone = form.cleaned_data.get('phone')
@@ -69,27 +75,33 @@ def account_view(request):
     avatar = Profile.objects.get(user=request.user)
 
     return render(request, 'account.html', context={
-        'full_name': full_name,
-        'avatar': avatar
-    })
+                    'full_name': full_name,
+                    'avatar': avatar
+                })
 
 class UserEditFormView(View):
 
     def get(self, request):
-
+        user_form = AccountEditForm(instance=request.user)
         profile_form = ProfileForm(instance=request.user.profile)
-        return render(request, 'profile.html', context={'profile_form': profile_form})
+        return render(request,
+                      'profile.html',
+                      {'user_form': user_form,
+                       'profile_form': profile_form})
 
     def post(self, request):
-
+        user_form = AccountEditForm(instance=request.user, data=request.POST)
         profile_form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
 
-        if profile_form.is_valid():
+        if profile_form.is_valid() and user_form.is_valid():
+            user_form.save()
             profile_form.save()
-            messages.add_message(request, messages.SUCCESS,
-                                 'Профиль успешно сохранен!')
-            return render(request, 'profile.html', context={'profile_form': profile_form})
-        return render(request, 'profile.html', context={'profile_form': profile_form})
+            return redirect(request.META.get('HTTP_REFERER'))
+        return render(request,
+                        'profile.html',
+                        {'user_form': user_form,
+                        'profile_form': profile_form})
+
 
 
 # ==============================================категории товаров========================================================================
@@ -104,12 +116,16 @@ class CategoryView(View):
         for image in date:
             file = os.path.basename(str(image.image))
             file_name_list.append(file)
-
-        category = zip(date, file_name_list)
+        categories = ProductCategory.objects.all()
+        banner = zip(date, file_name_list)
+        try:
+            banners = random.choices(list(banner), k=3)
+        except IndexError:
+            return None
         popular_product = Product.objects.all().order_by('-rating')[:8]
-        limited_edition = Product.objects.all().order_by('limited')
-        banners = Product.objects.all().order_by('-rating')
-        return render(request, 'index.html', {'categories': category,
+        limited_edition = Product.objects.all().order_by('limited')[:16]
+        #banners = Product.objects.all().order_by('-rating')[:3]
+        return render(request, 'index.html', {'categories': categories,
                                               'popular_product': popular_product,
                                               'limited_edition': limited_edition,
                                               'banners': banners})
@@ -172,79 +188,7 @@ class FullCatalogView(CatalogByCategoriesMixin, View):
                 'tag': tag,
             })
 
- #class AllCardForAjax(CatalogByCategoriesMixin, View):
 
-#     """
-#     Класс-контроллер для отображения набора товаров в каталоге с учетом необходимых фильтров, сортировки и пагинации
-#     ::Страница: Каталог
-#     """
-#
-#     def get(self, request):
-#         """
-#         метод для гет-запроса контроллера для отображения  набора товаров в каталоге
-#         с учетом необходимых фильтров, сортировки и пагинации без обновления изначальной страницы каталога
-#         get параметры :
-#             search - запрос пользователя из поисковой строки
-#             tag - выбранный тэг
-#             sort_type - тип сортировки
-#             page - страница пагинации
-#             slug - слаг категории товаров
-#         :param request: искомый запрос клиента
-#         :return: json с ключами:
-#                 html - текст разметки необходимых карточек товаров с учетов входных условий
-#                 current_state - вид и направление текущей использованной сортировки
-#                 next_state - тип и направление сортировки для повторного запроса
-#                 next_page - значение следующей доступной страницы пагинации
-#                 prev_page - значение предыдущей доступной страницы пагинации
-#                 pages_list - список доступных номеров страниц пагинации при данных входных условиях
-#         """
-#
-#         search, tag, sort_type, page, slug = self.get_request_params_for_full_catalog(request)
-#
-#         if not self.check_if_filter_params(request):
-#             # получаем товары без фильтра и актуальные стоимости
-#             row_items_for_catalog, tags = self.get_full_data(tag, search, slug)
-#             row_items_for_catalog = self.add_sale_prices_in_goods_if_needed(row_items_for_catalog)
-#
-#         else:
-#             # получаем товары с фильтром и актуальные стоимости
-#             filter_data = self.get_data_from_form(request)
-#             row_items_for_catalog, tags = self.get_full_data_with_filters(
-#                 search_query=search,
-#                 search_tag=tag,
-#                 slug=slug,
-#                 filter_data=filter_data
-#             )
-#
-#         items_for_catalog, next_state = self.simple_sort(row_items_for_catalog, sort_type)
-#
-#         # пагинатор
-#         paginator = Paginator(items_for_catalog, 8)
-#
-#         pages_list = self.custom_pagination_list(paginator, page)
-#         page_obj = paginator.get_page(page)
-#
-#         # кнопки пагинации
-#         next_page = str(page_obj.next_page_number() if page_obj.has_next() else page_obj.paginator.num_pages)
-#         prev_page = str(page_obj.previous_page_number() if page_obj.has_previous() else 1)
-#
-#         context = {
-#             'pages_list': pages_list,
-#             'page_obj': page_obj,
-#             'sort_type': sort_type,
-#             'next_page': next_page,
-#             'prev_page': prev_page,
-#         }
-#
-#         return JsonResponse({
-#             'html': render_to_string('includes/card.html', context=context),
-#             'current_state': sort_type,
-#             'next_state': next_state,
-#             'next_page': next_page,
-#             'prev_page': prev_page,
-#             'pages_list': pages_list,
-#             'sort_type': sort_type,
-#         })
 class ProductDetailView(DetailView):
     """
     Детальная страница продукта
@@ -343,85 +287,6 @@ def add_viewed(request, product_id):
     return redirect(reverse('product', kwargs={'slug': product.slug}))
 
 
-# def cart_clear(request):
-#     """
-#     Очистка корзины
-#     ::Страница: Корзина
-#     """
-#     cart = CartService(request)
-#     cart.clear()
-#     return redirect('cart_detail')
-#
-# class CartView(View):
-#     """
-#     Представление корзины
-#     ::Страница: Корзина
-#     """
-#
-#     @classmethod
-#     def get(cls, request: HttpRequest):
-#         cart = CartService(request)
-#
-#         items = cart.get_goods()
-#         total = cart.get_quantity#колво товара в корзине
-#         total_price = cart.get_total_sum
-#
-#         context = {'items': items,
-#                    'total': total,
-#                    'total_price': total_price
-#                    }
-#
-#         return render(request, 'cart.html', context=context)
-#
-#     @classmethod
-#     def post(cls, request: HttpRequest, product_id):
-#         cart = CartService(request)
-#
-#         product = get_object_or_404(Product, id=str(request.POST.get('option')))
-#         quantity = int(request.POST.get('amount'))
-#
-#         if quantity < 1:
-#             quantity = 1
-#         if int(product_id) == product.id:
-#             cart.add_to_cart(product, quantity, update_quantity=True)
-#         else:
-#             cart.update_product(product, quantity, product_id)
-#
-#         return redirect('cart_detail')
-#
-# class CartAdd(View):
-#     """
-#     Добавление позиций в корзине
-#     ::Страница: Корзина
-#     """
-#     def get(self, request: HttpRequest, product_id: int):
-#         cart = CartService(request)
-#         product = get_object_or_404(Product, id=str(product_id))
-#         cart.add_to_cart(product, quantity=1, update_quantity=False)
-#         return redirect(request.META.get('HTTP_REFERER'))
-#
-#     def post(self, request: HttpRequest, product_id: int):
-#         cart = CartService(request)
-#         product = get_object_or_404(Product, id=str(product_id))
-#         quantity = int(request.POST.get('quantity'))
-#         added = cart.add_to_cart(product, quantity=quantity, update_quantity=False)
-#         if added:
-#             messages.add_message(request, settings.SUCCESS_ADD_TO_CART, _(f'{product.name} был успешно добавлен в корзину.'))
-#         else:
-#             messages.add_message(request, settings.ERROR_ADD_TO_CART, _(f'Не удалось добавить {product.name}.Возможно не достаточно на складе.'))
-#         return redirect(request.META.get('HTTP_REFERER'))
-#
-# class CartRemove(View):
-#     """
-#     Удаление позиции из корзины
-#     ::Страница: Корзина
-#     """
-#     def get(self, request: HttpRequest, product_id: int):
-#         cart = CartService(request)
-#         cart.remove_from_cart(product_id)
-#         return redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
-
-
 @require_POST
 def cart_add(request, product_id):
     cart = Cart(request)
@@ -448,3 +313,407 @@ def cart_detail(request):
                                                                    })
 
     return render(request, 'cart.html', {'cart': cart})
+
+#==========================================оформление заказа=============================
+
+
+
+
+def orderstepone(request, **kwargs ):
+    """
+    Представление первого шага оформления заказа
+    ::Страница: Оформление заказа
+    """
+
+    if request.method == 'POST':
+        form = OrderStepOneForm(request.POST)
+        if form.is_valid():
+            if request.user.is_authenticated:
+                order = form.save()
+
+                cart = Cart(request)
+                for item in cart:
+                    OrderProduct.objects.create(order=order,
+                                                    product=item['product'],
+                                                    final_price=item['price'],
+                                                    quantity=item['quantity'])
+                order.save()
+                kwargs = {}
+                kwargs['order_id'] = order.id
+                order_id = order.id
+                return redirect('order_step_two', order_id)
+            else:
+                return redirect('login')
+        return render(request, 'order_step_two.html', {'form': form})
+    else:
+        user = request.user
+        if user.is_authenticated:
+            initial = {'fio': f'{user.profile.full_name}',
+                            'email': user.profile.email,
+                            'phone': user.profile.phone,
+                            'delivery': 'exp',
+                            'payment': 'cash'}
+        else:
+            initial = {'delivery': 'exp',
+                        'payment': 'cash'
+                       }
+        form = OrderStepOneForm(initial=initial)
+
+        return render(request, 'order_step_one.html', {'form': form})
+
+
+def ordersteptwo(request, order_id, delivery_cost=None, **kwargs):
+    """
+    Представление второго шага оформления заказа
+    ::Страница: Оформление заказа
+    """
+
+    if request.method == 'POST':
+        form = OrderStepTwoForm(request.POST)
+        order = Order.objects.get(id=order_id)
+        if form.is_valid():
+            delivery = form.cleaned_data['delivery']
+            city = form.cleaned_data['city']
+            address = form.cleaned_data['address']
+
+            order.delivery = delivery
+            order.city = city
+            order.address = address
+            order.customer = request.user
+            if order.delivery == 'reg':
+                if order.total_sum > 20:
+                    order.delivery_cost = int(2)
+                else:
+                    order.delivery_cost = int(0)
+            elif order.delivery == 'exp':
+                order.delivery_cost = int(5)
+            order.save()
+            kwargs = {}
+            kwargs['order_id'] = order.id
+            return redirect('order_step_three', order_id)
+        return render(request, 'order_step_two.html', {'form': form, 'order_id':order_id})
+    else:
+        order = Order.objects.get(id=order_id)
+        user = request.user
+        if user.is_authenticated:
+            initial = {
+                       'delivery': 'reg',
+                       'payment': 'cash'}
+
+            form = OrderStepTwoForm(initial=initial)
+            kwargs = {}
+            kwargs['order_id'] = order.id
+            return render(request, 'order_step_two.html', {'form': form, 'order_id':order_id})
+        else:
+            return redirect('login')
+
+
+
+class OrderStepOneAnonym(View):
+    """
+    Представление первого шага оформления заказа для анонимного пользователя
+    ::Страница: Оформление заказа
+    """
+    def get(self, request: HttpRequest) -> Callable:
+        if request.user.is_authenticated:
+            return redirect('order_step_one')
+
+        form = RegisterForm()
+
+        context = {'form': form}
+        return render(request, 'order_step_one_anonimous.html', context=context)
+
+    def post(self, request: HttpRequest) -> Callable:
+        """
+        Метод переопределен для слияние анонимной корзины
+        с корзиной аутентифицированного пользователя
+        """
+        form = RegisterForm(request.POST, request.FILES)
+        if form.is_valid():
+            old_cart = Cart(self.request)
+            user = form.save()
+            reset_phone_format(instance=user)
+            login(request, get_auth_user(data=form.cleaned_data))
+            new_cart = Cart(self.request)
+            new_cart = old_cart
+
+
+            order = Order.objects.get(customer=request.user, in_order=False)
+            fio = request.POST.get('name')
+            email = form.cleaned_data['email']
+            phone = form.cleaned_data['phone']
+
+            if fio:
+                order.fio = fio
+            order.email = email
+            order.phone = phone
+            order.save()
+            return redirect('order_step_two')
+
+        return render(request, 'order_step_one_anonimous.html', {'form': form})
+
+
+class OrderStepThree(View):
+    """
+    Представление третьего шага оформления заказа
+    ::Страница: Оформление заказа
+    """
+    form_class = OrderStepThreeForm
+    template_name = 'order_step_three.html'
+
+    def get(self, request: HttpRequest, order_id):
+        user = request.user
+        if user.is_authenticated:
+            form = OrderStepThreeForm
+            return render(request, self.template_name, {'form': form, 'order_id':order_id})
+        else:
+            return redirect('login')
+
+    def post(self, request: HttpRequest, order_id):
+        form = self.form_class(request.POST)
+        order = Order.objects.get(id=order_id)
+        if form.is_valid():
+            payment_method = form.cleaned_data['payment_method']
+            order.payment_method = payment_method
+            order.in_order = True
+            order.ordered = datetime.datetime.today()
+            order.save()
+            return redirect('order_step_four', order_id)
+
+        return render(request, self.template_name, {'form': form, 'order_id':order_id})
+
+
+class OrderStepFour(View):
+    """
+    Представление четвертого шага оформления заказа
+    ::Страница: Оформление заказа
+    """
+    template_name = 'order_step_four.html'
+
+    def get(self, request: HttpRequest, order_id):
+        user = request.user
+        if user.is_authenticated:
+            order = Order.objects.filter(id=order_id, in_order=True).last()
+            return render(request, self.template_name, {'order': order, 'order_id':order_id})
+
+        else:
+            return redirect('login')
+
+def get_auth_user(data: Dict) -> Callable:
+    """
+    Authentication user
+    """
+    email = data['email']
+    raw_password = data['password1']
+    return authenticate(email=email, password=raw_password)
+
+
+def reset_phone_format(instance: 'User') -> None:
+    """
+    Reset phone format
+    """
+    try:
+        instance.phone = instance.phone[3:].replace(')', '').replace('-', '')
+        instance.save(update_fields=['phone'])
+    except AttributeError:
+        pass
+
+
+class PaymentView(View):
+    """
+    Оплата заказа. Логика направляется в зависимости от способа оплаты.
+    ::Страница: Оплата заказа
+    """
+    def get(self, request: HttpRequest, order_id):
+        order = get_object_or_404(Order, id=order_id)
+
+        if order.payment_method == 'card':
+            return redirect('payment_with_card', order_id)
+        else:
+            return redirect('payment_with_account', order_id)
+
+
+class PaymentWithCardView(View):
+    """
+    Представление оплаты банковской картой
+    ::Страница: Оплата заказа
+    """
+    template_name = 'paymentcard.html'
+
+    def get(self, request: HttpRequest, order_id: int):
+        form = PaymentForm(request.POST)
+        try:
+            order = get_object_or_404(Order, id=order_id)
+        except Http404:
+            order = None
+        context = {'order': order, 'order_id': order_id, 'form': form}
+        return render(request, self.template_name, context=context)
+
+    def post(self, request: HttpRequest, order_id):
+        order = get_object_or_404(Order, id=order_id)
+
+        form = PaymentForm(request.POST)
+
+        if form.is_valid():
+
+            user = request.user
+
+            number = form.cleaned_data.get('number')
+            name = form.cleaned_data.get('name')
+            code = form.cleaned_data.get('code')
+
+            Payment.objects.create(
+                number=number,
+                name=user.profile.username,
+                code=order_id,
+
+            )
+
+            return redirect('payment_process', order_id)
+        return render(request, self.template_name, context={'form': form, 'order_id': order_id})
+
+
+class PaymentWithAccountView(View):
+    """
+    Представление оплаты рандомным счетом
+    ::Страница: Оплата заказа
+    """
+    template_name = 'paymentaccount.html'
+
+    # def get(self, request: HttpRequest, order_id: int):
+    #     order = get_object_or_404(Order, id=order_id)
+    #     context = {'order': order, 'order_id': order_id}
+    #     return render(request, self.template_name, context=context)
+    #
+    # def post(self, request: HttpRequest, order_id: int):
+    #     account = ''.join(request.POST.get('numero1').split(' '))
+    #     print(account, 'ygeyuwghdjsbvb')
+    #     form = PaymentForm(request.POST)
+    #
+    #     if form.is_valid():
+    #         user = request.user
+    #
+    #         number = form.cleaned_data.get('number')
+    #         name = form.cleaned_data.get('name')
+    #         code = form.cleaned_data.get('code')
+    #
+    #         Payment.objects.create(
+    #             number=account,
+    #             name=user.profile.username,
+    #             code=order_id,
+    #
+    #         )
+    #         return redirect('payment_process', order_id)
+    #     return render(request, self.template_name, context={'form': form, 'order_id': order_id})
+    #     #result = process_payment(order_id, account)
+
+    def get(self, request: HttpRequest, order_id: int):
+        order = get_object_or_404(Order, id=order_id)
+        form = PaymentForm(request.POST)
+        characters = list('1234567890')
+        number = ''
+        for x in range(8):
+            number += random.choice(characters)
+        form.number = number
+        print(number)
+        context = {'order': order, 'order_id': order_id, 'form': form, 'number': number}
+        return render(request, self.template_name, context=context)
+    def post(self, request: HttpRequest, order_id):
+        order = get_object_or_404(Order, id=order_id)
+
+        form = PaymentForm(request.POST)
+
+        if form.is_valid():
+
+            user = request.user
+
+            number = form.cleaned_data.get('number')
+            name = form.cleaned_data.get('name')
+            code = form.cleaned_data.get('code')
+
+            Payment.objects.create(
+                number=number,
+                name=user.profile.username,
+                code=order_id,
+
+            )
+
+            return redirect('payment_process', order_id)
+        return render(request, self.template_name, context={'form': form, 'order_id': order_id})
+
+
+    # def post(self, request: HttpRequest, order_id: int):
+    #     account = ''.join(request.POST.get('numero1').split(' '))
+    #
+    #     try:
+    #         order = get_object_or_404(Order, id=order_id)
+    #         if order:
+    #             result = False
+    #             sum = 0
+    #             for i in account:
+    #                 sum += int(i)
+    #             if sum % 2 == 0 and int(account) % 10 != 0:
+    #                 order.paid = True
+    #                 order.save()
+    #                 return render(request, 'payment_process.html', {'result': True})
+    #     except (IndexError, KeyError, ValueError, Http404):
+    #         return render(request, 'payment_process.html', {'result': False})
+
+def payment_process(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    pay = get_object_or_404(Payment, code=order_id)
+    print(type(pay.number), 'fqlb')
+    if pay.number % 10 == 0 or len(str(pay.number)) % 2 != 0:
+        order.payment_error = random.choice('IndexError', 'KeyError', 'ValueError', 'Http404')
+        order.save()
+        time.sleep(3)
+        return redirect('payment_canceled')
+    order.paid = True
+    order.save()
+    time.sleep(3)
+    return redirect('payment_done')
+
+def payment_done(request):
+    """
+    Представление удачной оплаты
+    ::Страница: Оплата заказа
+    """
+    return render(request, 'done.html')
+
+
+def payment_canceled(request):
+    """
+    Представление неудачной оплаты
+    ::Страница: Оплата заказа
+    """
+    return render(request, 'canceled.html')
+
+class HistoryOrderView(generic.ListView):
+    """
+    Представление истории заказов
+    ::Страница: История заказов
+    """
+
+    model = Order
+    context_object_name = 'orders'
+    template_name = 'order_list.html'
+
+    def get_queryset(self):
+        return Order.objects.filter(customer=self.request.user, in_order=True)
+
+
+
+class HistoryOrderDetail(DetailView):
+    """
+    Детальное представление заказа
+    ::Страница: Детальная страница заказа
+    """
+
+    model = Order
+
+    def get(self, request, *args, **kwargs):
+        """ Получить заказ """
+
+        pk = kwargs['order_id']
+        order = self.model.objects.prefetch_related('order_products').get(id=pk)
+        return render(request, 'history_detail.html', context={'order': order})

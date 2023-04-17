@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load i18n %}
 
 {% block content %}
 
@@ -21,7 +21,7 @@
                                     </li>
                                     <li class="menu-item_ACTIVE menu-item"><a class="menu-link" href="{% url 'profile' %}">Профиль</a>
                                     </li>
-                                    <li class="menu-item"><a class="menu-link" href="historyorder.html">История заказов</a>
+                                    <li class="menu-item"><a class="menu-link" href="{% url 'order_list' %}">История заказов</a>
                                     </li>
 
                                 </ul>
@@ -31,75 +31,16 @@
                 </div>
                 <div class="Section-content">
                     <div class="Profile">
-                        <form class="form Profile-form" action="#" method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="row">
-                                <div class="row-block">
-                                    <div class="form-group">
-                                        <label class="form-label" for="avatar">Аватар
-                                        </label>
-                                        {% if request.user.avatar %}
-                                        <div class="Profile-avatar">
-                                        {% else %}
-                                        <div class="Profile-avatar Profile-avatar_noimg">
-                                        {% endif %}
-                                            <div class="Profile-img">
-                                                {%  if request.user.avatar %}
-                                                    <img src="{{ request.user.avatar_url }}" alt="#.png">
-                                                {% else %}
-                                                    <img src="assets/img/#.png" alt="#.png">
-                                                {% endif %}
-                                            </div>
-
-                                            <label class="Profile-fileLabel" for="avatar"><img src="assets/img/icons/upload.png" alt="#.png" />Загрузить фото
-                                            </label>
-                                            
-                                            <input class="Profile-file form-input" id="avatar" name="avatar" type="file" data-validate="onlyImgAvatar" />
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="full_name">ФИО
-                                        </label>
-                                        <input class="form-input" id="full_name"  type="text" value="{{request.user.profile.full_name|default_if_none:'No name'}}" name="full_name" data-validate="require" />
-                                    </div>
-                                </div>
-                                <div class="row-block">
-                                    <div class="form-group">
-                                        <label class="form-label" for="phone">Телефон
-                                        </label>
-                                        <input class="form-input" id="phone" name="phone" type="text" value="{{request.user.profile.phone}}" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="email">E-mail
-                                        </label>
-                                        <input class="form-input" id="email" name="mail" type="text" value="{{request.user.email}}" data-validate="require" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="password">Пароль
-                                        </label>
-                                        <input class="form-input" id="password" name="password" type="password" placeholder="Тут можно изменить пароль" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label" for="passwordReply">Подтверждение пароля
-                                        </label>
-                                        <input class="form-input" id="passwordReply" name="passwordReply" type="password" placeholder="Введите пароль повторно" />
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="Profile-btn">
-                                            <button class="btn btn_success" type="submit">Сохранить
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                      <form action="." method="post" enctype="multipart/form-data">
+                        {{ user_form.as_p }}
+                        {{ profile_form.as_p }}
+                        {% csrf_token %}
+                        <p><input type="submit" value="Save changes"></p>
                         </form>
-                        {% if messages %}
-                            {% for message in messages %}
-                                {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-                                    <div class="send-product-request" style="text-align: right;margin-top: 10px;">{{message}}</div>
-                                {% endif %}
-                            {%endfor %}
-                        {% endif %}
+
+
+
+
                     </div>
                 </div>
             </div>

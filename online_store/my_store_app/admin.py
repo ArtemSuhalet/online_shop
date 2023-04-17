@@ -4,9 +4,9 @@ from django.http import HttpRequest
 from my_store_app.models import *
 from django.utils.translation import gettext_lazy as _
 
-class SalesAdmin(admin.ModelAdmin):
-    list_display = ['product', 'shop', 'count', 'dateFrom', 'dateTo']
-    search_fields = ['product']
+# class SalesAdmin(admin.ModelAdmin):
+#     list_display = ['product', 'shop', 'count', 'dateFrom', 'dateTo']
+#     search_fields = ['product']
 
 @admin.register(Profile)
 class UserProfileAdmin(admin.ModelAdmin):
@@ -94,20 +94,24 @@ class OrderHistoryAdmin(admin.ModelAdmin):
     search_fields = ['user_order']
 
 
-class OrderAdmin(admin.ModelAdmin):
-    list_display = ['product_order', 'count', 'total_price',
-                    'date', 'free_delivery']
-    search_fields = ['product_order']
+# class OrderAdmin(admin.ModelAdmin):
+#     list_display = ['product_order', 'count', 'total_price',
+#                     'date', 'free_delivery']
+#     search_fields = ['product_order']
 
+
+class OrderProductInline(admin.TabularInline):
+    model = OrderProduct
+    raw_id_fields = ['product']
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('name', 'customer', 'phone', 'email', 'payment_method',
                     'in_order', 'paid', 'ordered', 'delivery_cost')
+    list_filter = ['paid', 'ordered']
+    inlines = [OrderProductInline]
 
-@admin.register(OrderProduct)
-class OrderProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'order', 'product', 'final_price', 'quantity')
+
 
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ['number', 'name', 'month', 'year', 'code']

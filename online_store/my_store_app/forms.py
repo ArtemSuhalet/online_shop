@@ -1,15 +1,32 @@
 from django import forms
+from django.core.validators import RegexValidator
 from my_store_app.models import *
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.utils.translation import gettext_lazy as _
 
+
+
+class AuthForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
 
 class AuthorRegisterForm(forms.Form):
     full_name = forms.CharField(required=True, help_text='имя пользователя')
-    phone = forms.CharField(required=True, help_text='номер телефона')
+    phone_valid = RegexValidator(regex=r'^\+?1?\d{6,15}$',
+                                 message=' '.join([str(_('номер телефона необходимо вводить в формате:')), '+999999999',
+                                                   str(_('до 15 символов.'))]))
+    phone = forms.CharField(required=True, validators=[phone_valid], help_text='номер телефона')
     email = forms.EmailField(required=True,  help_text='email')
     login = forms.CharField(required=True, help_text='логин')
     password = forms.CharField(required=True, help_text='пароль')
+
+class AccountEditForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ('email', 'username', 'password')
+
 
 
 class ProfileForm(forms.ModelForm):
@@ -80,3 +97,8 @@ class OrderStepThreeForm(forms.ModelForm):
                 }
             ), }
         fields = ['payment_method']
+
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = Payment
+        fields = ['number']
