@@ -526,7 +526,6 @@ class PaymentView(View):
     """
     def get(self, request: HttpRequest, order_id):
         order = get_object_or_404(Order, id=order_id)
-
         if order.payment_method == 'card':
             return redirect('payment_with_card', order_id)
         else:
@@ -609,18 +608,19 @@ class PaymentWithAccountView(View):
 
     def get(self, request: HttpRequest, order_id: int):
         order = get_object_or_404(Order, id=order_id)
-        form = PaymentForm(request.POST)
-        characters = list('1234567890')
-        number = ''
-        for x in range(8):
-            number += random.choice(characters)
-        form.number = number
-        print(number)
-        context = {'order': order, 'order_id': order_id, 'form': form, 'number': number}
+        card = randomnumber()
+        print('number', card)
+        initial = {'number': card
+                   }
+        form = PaymentForm(initial=initial)
+
+        context = {'order': order, 'order_id': order_id, 'form': form}
         return render(request, self.template_name, context=context)
+
     def post(self, request: HttpRequest, order_id):
         order = get_object_or_404(Order, id=order_id)
-
+        # card = randomnumber()
+        # print('number', card)
         form = PaymentForm(request.POST)
 
         if form.is_valid():
@@ -630,6 +630,7 @@ class PaymentWithAccountView(View):
             number = form.cleaned_data.get('number')
             name = form.cleaned_data.get('name')
             code = form.cleaned_data.get('code')
+
 
             Payment.objects.create(
                 number=number,
@@ -641,23 +642,14 @@ class PaymentWithAccountView(View):
             return redirect('payment_process', order_id)
         return render(request, self.template_name, context={'form': form, 'order_id': order_id})
 
+def randomnumber():
 
-    # def post(self, request: HttpRequest, order_id: int):
-    #     account = ''.join(request.POST.get('numero1').split(' '))
-    #
-    #     try:
-    #         order = get_object_or_404(Order, id=order_id)
-    #         if order:
-    #             result = False
-    #             sum = 0
-    #             for i in account:
-    #                 sum += int(i)
-    #             if sum % 2 == 0 and int(account) % 10 != 0:
-    #                 order.paid = True
-    #                 order.save()
-    #                 return render(request, 'payment_process.html', {'result': True})
-    #     except (IndexError, KeyError, ValueError, Http404):
-    #         return render(request, 'payment_process.html', {'result': False})
+    characters = list('1234567890')
+    number = ''
+    for x in range(8):
+        number += random.choice(characters)
+    print(number, 'random')
+    return number
 
 def payment_process(request, order_id):
     order = get_object_or_404(Order, id=order_id)

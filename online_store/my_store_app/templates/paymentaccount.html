@@ -30,8 +30,7 @@
                 <form class="form Payment" action="{% url 'payment_with_account' order_id %}" method="post">
                     {{ form.as_p }}
                     {% csrf_token %}
-                    <a class="form Payment" href="{% url 'payment_with_account' order.id %}">Generate Password
-                    </a>
+
                     <p><input type="submit" value="оплатить"></p>
 
 
