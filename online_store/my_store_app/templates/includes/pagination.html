@@ -4,39 +4,16 @@
 
 
 
-<div class="Pagination" >
-    <div class="Pagination-ins">
-        <a class="Pagination-element Pagination-element_prev" href="#" onclick="return false;"
-           id="prevPage"
-           data-page={{ prev_page }}
-           data-name="prev">
-            <img src="{% static 'assets/img/icons/prevPagination.svg' %}" alt="prevPagination"/>
-        </a>
-
-        {% for elem in pages_list %}
-        {% if elem == 1 %}
-        <a class="Pagination-element Pagination-element_current" href="#" onclick="return false;"
-           data-page={{ elem }}
-           data-name={{ elem }}>
-            <span class="Pagination-text">{{ elem }}</span></a>
-        {% elif elem == '...' %}
-        <a class="Pagination-element disabled" href="#" onclick="return false;">
-            <span class="Pagination-text">...</span></a>
-        {% else %}
-        <a class="Pagination-element" href="#" onclick="return false;"
-           data-page={{ elem }}
-           data-name={{ elem }}>
-            <span class="Pagination-text">{{ elem }}</span></a>
+<div class="pagination">
+    <span class="step-links">
+        {% if page.has_previous %}
+            <a href="?page={{ page.previous_page_number }}">Previous</a>
         {% endif %}
-        {% endfor %}
-
-        <a class="Pagination-element Pagination-element_next" href="#" onclick="return false;"
-           id="nextPage"
-           data-page={{ next_page }}
-           data-name="next">
-
-            <img src="{% static 'assets/img/icons/nextPagination.svg' %}" alt="next"/>
-        </a>
-
-    </div>
+        <span class="current">
+            Page {{ page.number }} of {{ page.paginator.num_pages }}.
+        </span>
+        {% if page.has_next %}
+            <a href="?page={{ page.next_page_number }}">Next</a>
+        {% endif %}
+    </span>
 </div>

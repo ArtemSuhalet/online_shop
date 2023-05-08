@@ -88,24 +88,18 @@
                   </div>
                 </div>
                 <div class="row-block">
-                  <div class="form-group require-field">
-                    <label class="form-label" for="password">{% trans 'Password' %}
-                    </label>
-                    {{ form.password1 }}
-                  </div>
-                  <div class="form-group require-field">
-                    <label class="form-label" for="passwordReply">{% trans 'Confirm Password' %}
-                    </label>
-                    {{ form.password2 }}
-                    <span class="formerror">{{form.errors.password2}}</span>
-                  </div>
+                </div>
                   <div class="form-group"><a class="btn btn_muted Order-btnReg" href="{% url 'login' %}">{% trans "Уже зарегистрирован" %}</a>
                   </div>
+                </div>
+                <div class="form-group"><a class="btn btn_muted Order-btnReg" href="{% url 'register' %}">Регистрация</a>
                 </div>
               </div>
               <div class="Order-footer">
                 <button class="btn btn_success custom_login_btn-success" type="submit">{% trans 'Next' %}</button>
               </div>
+
+
               {% csrf_token %}
             </div>
           </form>

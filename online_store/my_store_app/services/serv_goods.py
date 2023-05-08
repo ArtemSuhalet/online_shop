@@ -29,6 +29,10 @@ class CatalogByCategoriesMixin:
         """
         next_state = ''
 
+        if sort_type == 'name_inc':
+            next_state = 'name_dec'
+            some_list = cls.sort_by_name(some_list, False)
+
         if sort_type == 'price_inc':
             next_state = 'price_dec'
             some_list = cls.sort_by_price(some_list, False)
@@ -67,7 +71,7 @@ class CatalogByCategoriesMixin:
     @classmethod
     def add_sale_prices_in_goods_if_needed(cls, some_goods: list) -> List:
         """метод получает список цен продуктов для дальнейшей сортировки"""
-        goods_with_sale = get_discounted_prices_for_seller_products(some_goods)
+        goods_with_sale = get_prices_for_products(some_goods)
         result = []
         for elem in goods_with_sale:
             if elem[1] is not None:
@@ -376,7 +380,7 @@ def get_categories() -> QuerySet:
     return categories
 
 
-def get_discounted_prices_for_seller_products(products: list) -> zip:
+def get_prices_for_products(products: list) -> zip:
     prices = []
 
     for product in products:

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+
+{%block header %}
+  {% include 'includes/header.html' %}
+{% endblock %}
+
+{% block content %}
+
+        <h2> {% trans 'Тик так' %} - {{ time }} </h2>
+
+            <div class="wrap">
+
+                <div class="row-block">
+                    <strong class="Footer-title">Навигация
+                    </strong>
+                    <ul class="menu menu_vt Footer-menu">
+                        <li class="menu-item"><a class="menu-link" href="{% url 'admin_app:upload' %}">Загрузка файлов</a>
+                        </li>
+                        <li class="menu-item"><a class="menu-link" href="{% url 'admin_app:items_list' %}">Товары</a>
+                        </li>
+                        <li class="menu-item"><a class="menu-link" href="{% url 'admin_app:categories_list' %}">Категории</a>
+                        </li>
+                        <li class="menu-item"><a class="menu-link" href="{% url 'admin_app:users_list' %}">Пользователи</a>
+                        </li>
+                        <li class="menu-item"><a class="menu-link" href="{% url 'admin_app:orders_list' %}">Заказы</a>
+                        </li>
+                        <li class="menu-item"><a class="menu-link" href="{% url 'admin_app:reviews_list' %}">Комментарии</a>
+                        </li>
+
+                    </ul>
+                </div>
+
+            </div>
+
+
+{% endblock %}

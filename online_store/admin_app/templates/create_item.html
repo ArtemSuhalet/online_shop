@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+
+{%block header %}
+  {% include 'includes/header.html' %}
+{% endblock %}
+
+{% block content %}
+
+
+<form method="post" action="{% url 'admin_app:create_item' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Добавить</button>
+    </form>
+
+
+
+{% endblock %}

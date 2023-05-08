@@ -1,11 +1,13 @@
 import datetime
 import re
 import time
+from _decimal import Decimal
 from typing import Dict, Callable, Union, Iterable
 from django import template
 from django.conf import settings
 from django.contrib import messages
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Count, Sum, Min, Max
 from django.http import HttpRequest, JsonResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
@@ -19,6 +21,7 @@ from django.contrib.auth.views import LogoutView, LoginView
 from django.contrib.auth.models import User
 import os
 import random
+from taggit.models import Tag
 from my_store_app.services.serv_goods import CatalogByCategoriesMixin
 from my_store_app.services.good_detail import CurrentProduct, context_pagination
 from django.core.cache import cache
@@ -52,12 +55,12 @@ def register_view(request):  # +
             user.save()
             login(request, user)
             Profile.objects.create(user=user, username=username, full_name=full_name, phone=phone, email=email)
-        return redirect('/')
+        return redirect(request.META.get('HTTP_REFERER'))
 
     return render(request, 'register.html')
 
 
-class AuthorLogoutView(LogoutView):  # +
+class AuthorLogoutView(LogoutView):
     """Выход из учетной записи"""
     next_page = '/'
 
@@ -73,10 +76,12 @@ def account_view(request):
     full_name = Profile.objects.get(user=request.user)
 
     avatar = Profile.objects.get(user=request.user)
+    last_order = Order.objects.filter(customer=request.user, in_order=True).last()
 
     return render(request, 'account.html', context={
                     'full_name': full_name,
-                    'avatar': avatar
+                    'avatar': avatar,
+                    'last_order': last_order,
                 })
 
 class UserEditFormView(View):
@@ -111,82 +116,232 @@ class CategoryView(View):
     """Формирование списка категорий, популярных товаров,
      лимитированных, баннеров и путей до изображений этих категорий"""
     def get(self, request):
+
+        category = None
         date = Product.objects.all()
         file_name_list = []
         for image in date:
             file = os.path.basename(str(image.image))
             file_name_list.append(file)
-        categories = ProductCategory.objects.all()
-        banner = zip(date, file_name_list)
+
         try:
-            banners = random.choices(list(banner), k=3)
+            randombanners = random.choices(list(date), k=3)
         except IndexError:
             return None
         popular_product = Product.objects.all().order_by('-rating')[:8]
         limited_edition = Product.objects.all().order_by('limited')[:16]
-        #banners = Product.objects.all().order_by('-rating')[:3]
+        spec = Product.objects.all().order_by('-rating')[:1]
+
+        categories = ProductCategory.objects.all()
+        cat = self.request.GET.get('category')
+        print('category', cat)
+        products = Product.objects.filter(category__slug=cat).all()
+
         return render(request, 'index.html', {'categories': categories,
+                                              'date': date,
+                                              'category': category,
                                               'popular_product': popular_product,
                                               'limited_edition': limited_edition,
-                                              'banners': banners})
+                                              'banners': randombanners,
+                                              'spec': spec,
+                                              'products': products,
+                                              })
 
-class FullCatalogView(CatalogByCategoriesMixin, View):
-    """
-    Класс-контроллер для отображения каталога-списка всех товаров
-    ::Страница: Каталог
-    """
 
-    def get(self, request):
-        """
-        метод для гет-запроса контроллера для отображения каталога всех товаров с учётом параметров гет-запроса
-        возможные параметры
-            search - запрос пользователя из поисковой строки
-            tag - выбранный тэг
-            sort_type - тип сортировки
-            page - страница пагинации
-            slug - слаг категории товаров
-        :return: рендер страницы каталога товаров определенной категории
-        """
-        # получаем параметры гет-запроса
-        search, tag, sort_type, page, slug = self.get_request_params_for_full_catalog(request)
+class FullCatalogView(ListView):
 
-        # получаем товары в соответсвии с параметрами гет-запроса
-        row_items_for_catalog, tags = self.get_full_data(tag, search)
-        row_items_for_catalog = self.add_sale_prices_in_goods_if_needed(row_items_for_catalog)
+    model = Product
+    paginate_by = 8
+    template_name = 'catalog.html'
 
-        # сортируем товары
-        items_for_catalog, *_ = self.simple_sort(row_items_for_catalog, sort_type)
+    def get_context_data(self, **kwargs):
+        def set_context(param: str, context_param: dict = None, reverse: bool = False):
+            item = self.request.GET.get(param)
+            if item is not None:
+                if not reverse:
+                    context_param[param] = item
+                else:
+                    if '-' in item:
+                        context_param[param] = item[1:]
+                    else:
+                        context_param[param] = ''.join(['-', item])
 
-        # пагинатор
-        paginator = Paginator(items_for_catalog, 8)
-        pages_list = self.custom_pagination_list(paginator, page)
-        page_obj = paginator.get_page(page)
+        context = super(FullCatalogView, self).get_context_data(**kwargs)
+        # Добавляем все параметры
+        set_context('filter', context)
+        set_context('orderby', context, True)
+        set_context('price', context)
+        set_context('search_text', context)
+        set_context('is_exist', context)
+        set_context('free_delivery', context)
+        #передаем диапазон цен для слайдера
+        from django.conf import settings
 
-        #кастомные параметры для рэнж-инпута в фильтре каталога
-        maxi = self.get_max_price(items_for_catalog)
-        mini = self.get_min_price(items_for_catalog)
-        midi = round((maxi + mini) / 2, 2)
+        context['CATALOG_MIN_PRICE'], context['CATALOG_MAX_PRICE'] = (
+        settings.CATALOG_MIN_PRICE, settings.CATALOG_MAX_PRICE)
 
-        # настройка кнопок пагинации
-        next_page = str(page_obj.next_page_number() if page_obj.has_next() else page_obj.paginator.num_pages)
-        prev_page = str(page_obj.previous_page_number() if page_obj.has_previous() else 1)
+        context['CATALOG_MIN_SELECTED_PRICE'], context['CATALOG_MAX_SELECTED_PRICE'] = str.split(
+            self.request.GET.get('price'), ';') if self.request.GET.get('price') else (
+        settings.CATALOG_MIN_PRICE, settings.CATALOG_MAX_PRICE)
 
-        return render(
-            request,
-            'catalog.html',
-            context={
-                'page_obj': page_obj,
-                'sort_type': sort_type,
-                'mini': mini,
-                'maxi': maxi,
-                'midi': midi,
-                'next_page': next_page,
-                'prev_page': prev_page,
-                'pages_list': pages_list,
-                'tags': tags,
-                'search': search,
-                'tag': tag,
-            })
+        return context
+
+    def get_queryset(self):
+        #ловим все параметры что передали через get запрос
+        filter_text = self.request.GET.get('filter', '')
+        search_text = self.request.GET.get('search_text', '')
+        order = self.request.GET.get('review', 'pop')
+        #вычисляем значения по умолчанию если параметры не передали
+        min_price, max_price = (Decimal(i) for i in str.split(self.request.GET.get('price'), ';')) if self.request.GET.get('price') else (Decimal(settings.CATALOG_MIN_PRICE), Decimal(settings.CATALOG_MAX_PRICE))
+        is_exist = True if self.request.GET.get('is_exist') == 'on' else False
+        is_free_delivery = True if self.request.GET.get('free_delivery') == 'on' else False
+
+        #выборка по фильтрации
+        new_context = Product.objects.filter(
+            category__name__icontains=filter_text,
+            name__icontains=search_text,
+            price__lte=max_price,
+            price__gte=min_price,
+            quantity__gte=1 if is_exist else 0,
+            is_free_delivery__gte=is_free_delivery,
+        )
+        return new_context
+
+def tags(request, tag_slug=None):
+    object_list = Product.published.all()
+    print(object_list)
+    tag = None
+
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        object_list = object_list.filter(tags__in=[tag])
+
+
+    return render(request, 'catalog.html', {'tag': tag})
+def post(request):
+
+    # paginator = Paginator(Product.objects.all(), 8)
+    # page_number = request.GET.get("page")
+    # page_obj = paginator.get_page(page_number)
+    if request.method == 'POST':
+        sort_form = SortForm(request.POST)
+        products = Product.objects.all()
+        if sort_form.is_valid():
+            needed_sort = sort_form.cleaned_data.get('sort_form')
+            if needed_sort == 'pop':
+                products = products.order_by('rating')
+
+            elif needed_sort == 'price':
+                products = products.order_by('price')
+
+            elif needed_sort == 'name':
+                products = products.order_by('name')
+
+            elif needed_sort == 'review':
+                products = sorted(products, key=lambda x: x.product_comments.count())
+
+        return render(request, 'catalog.html', {'sort_form': sort_form, 'products': products})
+
+
+# def min():
+#     return Product.objects.all().aggregate(Min('price'))
+#
+# def max():
+#     return Product.objects.all().aggregate(Max('price'))
+
+# class FullCatalogView(CatalogByCategoriesMixin, View):
+#     """
+#     Класс-контроллер для отображения каталога-списка всех товаров
+#     ::Страница: Каталог
+#     """
+#
+#     def get(self, request):
+#         """
+#         метод для гет-запроса контроллера для отображения каталога всех товаров с учётом параметров гет-запроса
+#         возможные параметры
+#             search - запрос пользователя из поисковой строки
+#             tag - выбранный тэг
+#             sort_type - тип сортировки
+#             page - страница пагинации
+#             slug - слаг категории товаров
+#         :return: рендер страницы каталога товаров определенной категории
+#         """
+#         # получаем параметры гет-запроса
+#         search, tag, sort_type, page, slug = self.get_request_params_for_full_catalog(request)
+#         print('1',search, '2',tag, '3',sort_type,'4', page,'5', slug)
+#         # получаем товары в соответсвии с параметрами гет-запроса
+#         row_items_for_catalog, tags = self.get_full_data(tag, search)
+#         print(row_items_for_catalog, tags)
+#         row_items_for_catalog = self.add_sale_prices_in_goods_if_needed(row_items_for_catalog)
+#
+#         # сортируем товары
+#         items_for_catalog, *_ = self.simple_sort(row_items_for_catalog, sort_type)
+#         # пагинатор
+#         paginator = Paginator(items_for_catalog, 8)
+#         paginator = Paginator(Product.objects.all(), 4)
+#         page_number = request.GET.get("page")
+#         page_obj = paginator.get_page(page_number)
+#
+#         try:
+#             posts = paginator.page(page_number)
+#         except PageNotAnInteger:
+#             posts = paginator.page(1)
+#         except EmptyPage:
+#             posts = paginator.page(paginator.num_pages)
+#
+#         #кастомные параметры для рэнж-инпута в фильтре каталога
+#         maxi = self.get_max_price(items_for_catalog)
+#         mini = self.get_min_price(items_for_catalog)
+#         midi = round((maxi + mini) / 2, 2)
+#         print(maxi, mini, 'prices')
+#
+#         return render(
+#             request,
+#             'catalog.html',
+#             context={
+#                 'page_obj': page_obj,
+#                 'posts': posts,
+#                 'mini': mini,
+#                 'maxi': maxi,
+#                 'midi': midi,
+#                 'tags': tags,
+#                 'search': search,
+#                 'tag': tag,
+#
+#             })
+#
+#     def post(self, request):
+#         if request.method == 'POST':
+#             sort_form = SortForm(request.POST)
+#             products = Product.objects.all()
+#             if sort_form.is_valid():
+#                 needed_sort = sort_form.cleaned_data.get('sort_form')
+#                 if needed_sort == 'pop':
+#                     products = products.order_by('rating')
+#
+#                 elif needed_sort == 'price':
+#                     products = products.order_by('price')
+#
+#                 elif needed_sort == 'name':
+#                     products = products.order_by('name')
+#
+#                 elif needed_sort == 'review':
+#                     products = sorted(products, key=lambda x: x.product_comments.count())
+#
+#             return render(request, 'catalog.html', {'sort_form': sort_form, 'products': products})
+
+class Search(ListView):
+    template_name = 'catalog.html'
+    context_object_name = 'product'
+    paginate_by = 4
+    def get_queryset(self):
+        return Product.objects.filter(name__icontains=self.request.GET.get('q'))
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['q'] = self.request.GET.get('q')
+        print(context)
+        return context
 
 
 class ProductDetailView(DetailView):
@@ -198,8 +353,9 @@ class ProductDetailView(DetailView):
     context_object_name = 'product'
     template_name = 'product.html'
     slug_url_kwarg = 'slug'
+    paginate_by = 3
 
-    def get_context_data(self, **kwargs) -> Dict:
+    def get_context_data(self,  **kwargs) -> Dict:
         context = super().get_context_data(**kwargs)
         product = CurrentProduct(instance=context['product'])
         reviews = product.get_reviews
@@ -207,9 +363,9 @@ class ProductDetailView(DetailView):
 
         context = {
             'reviews_count': reviews.count(),
-            'comments': context_pagination(self.request, reviews,
-                                           size_page=3),
-
+            # 'comments': context_pagination(self.request, reviews
+            #                                ),
+            'comments': reviews,
             'form': ReviewForm(),
             'specifications': product.get_specifications,
             'tags': product.get_tags,
@@ -219,7 +375,7 @@ class ProductDetailView(DetailView):
         return context
 
 
-def get_reviews(request: HttpRequest) -> JsonResponse:
+def get_reviews(self, request: HttpRequest) -> JsonResponse:
     """
     Представление для получения всех отзывов о товаре
     ::Страница: Детальная страница продукта
@@ -228,9 +384,20 @@ def get_reviews(request: HttpRequest) -> JsonResponse:
     page = request.GET.get('page')
     product = CurrentProduct(slug=slug)
     reviews = product.get_reviews
-    return JsonResponse({**product.get_review_page(reviews, page),
-                         'slug': slug}, safe=False)
-
+    paginator = Paginator(reviews, 3)
+    page_obj = paginator.get_page(page)
+    try:
+        posts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer deliver the first page
+        posts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range deliver last page of results
+        posts = paginator.page(paginator.num_pages)
+    #reviews = self.product.product_comments.all()
+    # return JsonResponse({**product.get_review_page(reviews, page),
+    #                      'slug': slug}, safe=False)
+    return reviews #render(request, 'product.html', {'comments':reviews, 'page_obj': page_obj, 'posts':posts})
 
 def post_review(request: HttpRequest):
     """
@@ -297,7 +464,7 @@ def cart_add(request, product_id):
         cart.add(product=product,
                  quantity=cd['quantity'],
                  update_quantity=cd['update'])
-    return redirect('cart_detail')
+    return redirect(request.META.get('HTTP_REFERER'))
 
 def cart_remove(request, product_id):
     cart = Cart(request)
@@ -341,6 +508,7 @@ def orderstepone(request, **kwargs ):
                 kwargs = {}
                 kwargs['order_id'] = order.id
                 order_id = order.id
+                cart.clear()
                 return redirect('order_step_two', order_id)
             else:
                 return redirect('login')
@@ -418,7 +586,7 @@ class OrderStepOneAnonym(View):
         if request.user.is_authenticated:
             return redirect('order_step_one')
 
-        form = RegisterForm()
+        form = AuthorRegisterForm()
 
         context = {'form': form}
         return render(request, 'order_step_one_anonimous.html', context=context)
@@ -428,11 +596,11 @@ class OrderStepOneAnonym(View):
         Метод переопределен для слияние анонимной корзины
         с корзиной аутентифицированного пользователя
         """
-        form = RegisterForm(request.POST, request.FILES)
+        form = AuthorRegisterForm(request.POST, request.FILES)
         if form.is_valid():
             old_cart = Cart(self.request)
             user = form.save()
-            reset_phone_format(instance=user)
+            #reset_phone_format(instance=user)
             login(request, get_auth_user(data=form.cleaned_data))
             new_cart = Cart(self.request)
             new_cart = old_cart
@@ -448,7 +616,9 @@ class OrderStepOneAnonym(View):
             order.email = email
             order.phone = phone
             order.save()
-            return redirect('order_step_two')
+            #kwargs['order_id'] = order.id
+            order_id = order.id
+            return redirect('order_step_two', order_id)
 
         return render(request, 'order_step_one_anonimous.html', {'form': form})
 
@@ -579,33 +749,6 @@ class PaymentWithAccountView(View):
     """
     template_name = 'paymentaccount.html'
 
-    # def get(self, request: HttpRequest, order_id: int):
-    #     order = get_object_or_404(Order, id=order_id)
-    #     context = {'order': order, 'order_id': order_id}
-    #     return render(request, self.template_name, context=context)
-    #
-    # def post(self, request: HttpRequest, order_id: int):
-    #     account = ''.join(request.POST.get('numero1').split(' '))
-    #     print(account, 'ygeyuwghdjsbvb')
-    #     form = PaymentForm(request.POST)
-    #
-    #     if form.is_valid():
-    #         user = request.user
-    #
-    #         number = form.cleaned_data.get('number')
-    #         name = form.cleaned_data.get('name')
-    #         code = form.cleaned_data.get('code')
-    #
-    #         Payment.objects.create(
-    #             number=account,
-    #             name=user.profile.username,
-    #             code=order_id,
-    #
-    #         )
-    #         return redirect('payment_process', order_id)
-    #     return render(request, self.template_name, context={'form': form, 'order_id': order_id})
-    #     #result = process_payment(order_id, account)
-
     def get(self, request: HttpRequest, order_id: int):
         order = get_object_or_404(Order, id=order_id)
         card = randomnumber()
@@ -619,8 +762,6 @@ class PaymentWithAccountView(View):
 
     def post(self, request: HttpRequest, order_id):
         order = get_object_or_404(Order, id=order_id)
-        # card = randomnumber()
-        # print('number', card)
         form = PaymentForm(request.POST)
 
         if form.is_valid():
@@ -656,7 +797,8 @@ def payment_process(request, order_id):
     pay = get_object_or_404(Payment, code=order_id)
     print(type(pay.number), 'fqlb')
     if pay.number % 10 == 0 or len(str(pay.number)) % 2 != 0:
-        order.payment_error = random.choice('IndexError', 'KeyError', 'ValueError', 'Http404')
+        error = ['IndexError', 'KeyError', 'ValueError', 'Http404']
+        order.payment_error = random.choice(error)
         order.save()
         time.sleep(3)
         return redirect('payment_canceled')
@@ -709,3 +851,5 @@ class HistoryOrderDetail(DetailView):
         pk = kwargs['order_id']
         order = self.model.objects.prefetch_related('order_products').get(id=pk)
         return render(request, 'history_detail.html', context={'order': order})
+
+

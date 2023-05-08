@@ -9,177 +9,189 @@
 {% block content %}
 <div class="Middle Middle_top">
     <div class="Middle-top">
-        <div class="wrap">
-            <div class="Middle-header">
-                <h1 class="Middle-title">{% trans 'Каталог Megano' %}
-                </h1>
-                <ul class="breadcrumbs Middle-breadcrumbs">
-                    <li class="breadcrumbs-item"><a href="{% url 'index' %}">{% trans 'Домой' %}</a>
-                    </li>
-                    <li class="breadcrumbs-item breadcrumbs-item_current"><span>{% trans 'Каталог' %}</span>
-                    </li>
-                </ul>
-            </div>
+      <div class="wrap">
+        <div class="Middle-header">
+          <h1 class="Middle-title">Catalog Megano
+          </h1>
+          <ul class="breadcrumbs Middle-breadcrumbs">
+            <li class="breadcrumbs-item"><a href="{% url 'index' %}">home</a>
+            </li>
+            <li class="breadcrumbs-item breadcrumbs-item_current"><span>Каталог</span>
+            </li>
+          </ul>
         </div>
+      </div>
     </div>
     <div class="Section Section_column Section_columnLeft">
-        <div class="wrap">
-            <div class="Section-column">
-                <div class="Section-columnSection">
-                    <header class="Section-header">
-                        <strong class="Section-title">{% trans 'Фильтр' %}
-                        </strong>
-                    </header>
-                    <div class="Section-columnContent">
-                        <form class="form"
-                              action=""
-                              method="get"
-                              name="filterForm">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <div class="range Section-columnRange">
-                                    <input class="range-line" id="price" name="price" type="text"
-                                           data-type="double"
-                                           data-min="{{ mini }}"
-                                           data-max="{{ maxi }}"
-                                           data-from="{{ min }}"
-                                           data-to="{{  midi }}"/>
-                                    <div class="range-price">{% trans 'Цена:' %}&#32;
-                                        <div class="rangePrice"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <input class="form-input form-input_full" id="title" name="title" type="text"
-                                       placeholder="Название"/>
-                            </div>
+      <div class="wrap">
+        <div class="Section-column">
+          <div class="Section-columnSection">
+            <header class="Section-header">
+              <strong class="Section-title">Фильтр
+              </strong>
+            </header>
+            <div class="Section-columnContent">
+              <form class="form"
+                    action="{% url 'catalog_url' %}"
+                    method="get"
+              >
+                {% csrf_token %}
+                <div class="form-group">
+                  <div class="range Section-columnRange">
 
-                            <div class="form-group">
-                                <label class="toggle">
-                                    <input class="che" type="checkbox" name="in_stock" value="0"/>
-                                    <span class="toggle-box"></span>
-                                    <span class="toggle-text">{% trans 'Только в наличии:' %}</span>
-                                </label>
-                            </div>
-                            <div class="form-group">
-                                <label class="toggle">
-                                    <input class="che" type="checkbox" name="is_hot" value="0"/>
-                                    <span class="toggle-box"></span>
-                                    <span class="toggle-text">{% trans 'Только лимитированное предложение:' %}</span>
-                                </label>
-                            </div>
-                            <div class="form-group">
-                                <div class="buttons">
-                                    <button class="filter-btn btn btn_square btn_dark btn_narrow" type="submit"
-                                            onclick="return false;"
-                                            data-sort={{ sort_type }}
-                                            data-active=0
-                                            id="submit_btn">
-                                        {% trans 'Фильтр' %}
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                    <!-- Получаем данные по фильтру цены -->
+                    <input class="range-line"
+                           id="price"
+                           name="price"
+                           type="text"
+                           data-type="double"
+                           data-min="{{ CATALOG_MIN_PRICE }}"
+                           data-max="{{ CATALOG_MAX_PRICE }}"
+                           data-from="{{ CATALOG_MIN_SELECTED_PRICE }}"
+                           data-to="{{ CATALOG_MAX_SELECTED_PRICE }}"
+                    />
+                    <!-- Получаем данные по фильтру цены -->
+
+                    <div class="range-price">Price:&#32;
+                      <div class="rangePrice">
+                      </div>
                     </div>
+                  </div>
                 </div>
-
-                <div class="Section-columnSection">
-                    <header class="Section-header">
-                        <strong
-                                class="Section-title"
-                                id="tag_status"
-                                data-tag_name=""
-                                data-tag_active=0>
-                            {% trans 'Популярные tags' %}
-                        </strong>
-                    </header>
-                    <div class="Section-columnContent">
-
-                        <div class="buttons">
-
-                            {% for tag in tags %}
-                            {% if tag %}
-                            <a class="btn btn_default btn_sm tag_btn" href=""
-                               onclick="return false;"
-                               data-sort={{ sort_type }}
-                               data-in_use=0
-                               data-tag={{ tag.name }}>
-                                {{ tag.name }}
-                            </a>
-                            {% endif %}
-                            {% endfor %}
-
-                        </div>
-
-                    </div>
+                <div class="form-group">
+                  <input  class="form-input form-input_full"
+                          id="search_text"
+                          name="search_text"
+                          type="text"
+                          {% if search_text is None %}
+                          placeholder="Название"
+                          {% else %}
+                          value="{{ search_text }}"
+                          {% endif %}
+                  />
                 </div>
-
+                <div class="form-group">
+                  <!-- - var options = setOptions(items, ['value', 'selected', 'disabled']);-->
+                </div>
+                <div class="form-group">
+                  <label class="toggle">
+                    <input type="checkbox" id="is_exist" name="is_exist" {% if is_exist %}checked{% endif %}/><span class="toggle-box"></span><span
+                          class="toggle-text">Только товары в наличии</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <label class="toggle">
+                    <input type="checkbox" id="free_delivery" name="free_delivery"{% if free_delivery %}checked{% endif %}/><span class="toggle-box"></span><span
+                          class="toggle-text">С бесплатной доставкой</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <div class="buttons"><button class="btn btn_square btn_dark btn_narrow" type="submit">Filter</button>
+                  </div>
+                </div>
+              </form>
             </div>
-
-            <div class="Section-content">
-
-                <!--    ==================================================   SORTS  ================================================-->
-
-                <div class="Sort">
-                    <div class="Sort-title" data-sort_title="price_inc">
-                        {% trans 'Сортировать по:' %}
-                    </div>
-                    <div class="Sort-variants">
-
-                        <!--=========================================  SORT BY Popularity ==================================================-->
-
-                        <a class="Sort-sortBy" data-name="pop"
-                           data-sort="pop_inc" data-page="{{ page_obj.number }}"
-                           href="#" onclick="return false;">
-                            {% trans 'Популярности' %}
-                        </a>
-
-                        <!--    =========================================  SORT BY PRICE ====================================================-->
-
-                        <a class="Sort-sortBy Sort-sortBy_inc" data-name="price"
-                           data-sort="price_dec" data-page="{{ page_obj.number }}"
-                           href="#" onclick="return false;">
-                            {% trans 'Цене' %}
-                        </a>
-
-                        <!-- =========================================  SORT BY COMMENTS ====================================================-->
-
-                        <a class="Sort-sortBy" data-name="comment"
-                           data-sort="comment_inc" data-page="{{ page_obj.number }}"
-                           href="#" onclick="return false;">
-                            {% trans 'Комментариям' %}
-                        </a>
-
-                        <!-- =========================================  SORT BY name =====================================================-->
-
-                        <a class="Sort-sortBy" data-name="name"
-                           data-sort="name_inc" data-page="{{ page_obj.number }}"
-                           href="#" onclick="return false;">
-                            {% trans 'Имени' %}
-                        </a>
-
-                        <!-- =========================================  SORT BY newness ===================================================-->
-
-                        <a class="Sort-sortBy" data-name="newness"
-                           data-sort="newness_inc" data-page="{{ page_obj.number }}"
-                           href="#" onclick="return false;">
-                            {% trans 'Новизне' %}
-                        </a>
-
-                    </div>
-                </div>
+          </div>
+          <div class="Section-columnSection">
+            <header class="Section-header">
+              <strong class="Section-title">Популярные категории
+              </strong>
+            </header>
+            <div class="Section-columnContent">
+              <div class="buttons">
+                  {% for tag in object_list.tags.all%}
 
 
-                <!-- ============================================  CARDS INCLUDE ====================================================-->
+                <!-- Получаем популярные тэги -->
+                <a href="{% url 'catalog_by_tag' tag.slug %}"  >
+
+                  {{  tag.name }}
+                </a>
 
 
-                {% include 'includes/card.html' %}
+                  {% endfor%}
+                <!-- Получаем популярные тэги -->
 
-
+              </div>
             </div>
+          </div>
         </div>
+        <div class="Section-content">
+          <div class="Sort">
+            <form action="{% url 'post' %}" method="post" >
+              <div class="Sort-title">Сортировать по:</div>
+                {% csrf_token %}
+              <p><input type="submit" name="sort" value="Сортировать по:"></p>
+              {% for form in sort_form %}
+              {{form}}
+              {%endfor%}
+
+                {% if products %}
+                {% for product in products %}
+                <div v-for="" class="Card" >
+                    <a class="Card-picture" href="{{product.get_absolute_url}}"><img src="{{ product.image_url }}" alt="card.title"/></a>
+                    <div class="Card-content">
+                      <strong class="Card-title"><a href="{{product.get_absolute_url}}">{{ product.name }}</a></strong>
+                      <div class="Card-description">
+                        <div class="Card-cost"><span class="Card-price">{{ product.price }}</span></div>
+                        <div class="Card-category">{{product.category}}</div>
+                        <div class="Card-hover">
+                          <div class="Card-hover"><a class="Card-btn" href="{{product.get_absolute_url}}"><img src="/static/assets/img/icons/card/cart.svg " alt="cart.svg" /></a>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+                {%endfor%}
+                {%endif%}
+
+            </form>
+          </div>
+          <div class="Cards">
+            {% for elem in page_obj %}
+            <!-- Получаем товары по фильтрам -->
+            <div v-for="" class="Card" >
+              <a class="Card-picture" href="{{elem.get_absolute_url}}"><img src="{{ elem.image_url }}" alt="card.title"/></a>
+              <div class="Card-content">
+                <strong class="Card-title"><a href="{{elem.get_absolute_url}}">{{ elem.name }}</a></strong>
+                <div class="Card-description">
+                  <div class="Card-cost"><span class="Card-price">{{ elem.price }}</span></div>
+                  <div class="Card-category">{{elem.category}}</div>
+                  <div class="Card-hover">
+                    <div class="Card-hover"><a class="Card-btn" href="{{elem.get_absolute_url}}"><img src="/static/assets/img/icons/card/cart.svg " alt="cart.svg" /></a>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {%endfor%}
+            <!-- Получаем товары по фильтрам -->
+          </div>
+          <div class="pagination">
+            <span class="step-links">
+              {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+              {% endif %}
+
+              <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+              </span>
+
+              {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+              {% endif %}
+            </span>
+          </div>
+
+
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
 
 {% endblock %}

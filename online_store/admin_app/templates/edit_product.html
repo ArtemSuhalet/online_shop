@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+
+{%block header %}
+  {% include 'includes/header.html' %}
+{% endblock %}
+
+{% block content %}
+
+<h1>{{ site_settings.title }}</h1>
+
+<h2>Редактировать</h2>
+  <form method="post" action="{% url 'admin_app:edit_product' product_id  %}">
+    {% csrf_token %}
+    {{ product_form.as_p }}
+    <button type="submit">Сохранить</button>
+  </form>
+
+
+
+
+
+
+
+{% endblock %}

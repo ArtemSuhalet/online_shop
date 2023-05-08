@@ -102,3 +102,8 @@ class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
         fields = ['number']
+
+
+
+class SortForm(forms.Form):
+    sort_form = forms.TypedChoiceField(label='sort of',choices=[('pop', 'популярности'), ('price', 'цене'), ('name', 'имени'),('review', 'отзывам')])

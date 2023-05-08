@@ -3,6 +3,7 @@ from typing import Callable
 from django.core.validators import RegexValidator
 from django.db.models import QuerySet
 from django.urls import reverse
+#from taggit.managers import TaggableManager
 from taggit.managers import TaggableManager
 from django.db import models
 from django.contrib.auth.models import User
@@ -12,6 +13,7 @@ from rest_framework.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 
+#===========================================профиль======================================================
 class Profile(models.Model):
 
     def validate_image(fieldfile_obj):
@@ -47,7 +49,7 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created and instance.is_superuser:
         Profile.objects.create(user=instance)
 
-
+#===========================================продукт======================================================
 class ProductCategory(models.Model):
     """
     Модель категории товаров
@@ -103,6 +105,7 @@ class Product(models.Model):
     limited = models.BooleanField(default=False, verbose_name=_('limited edition'))
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_('price'))
     quantity = models.IntegerField(verbose_name=_('quantity'))
+    is_free_delivery = models.BooleanField(default=False, verbose_name='free delivery')
 
     def __str__(self):
         return self.name
@@ -155,26 +158,10 @@ class Specifications(models.Model):
         verbose_name_plural = _('specifications')
         db_table = 'specifications'
 
-class OrderHistory(models.Model):  # история покупок пользователя
-    user_order = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name='пользователь', null=True)
-    product_order = models.ForeignKey('Product', on_delete=models.CASCADE, verbose_name='товар')
-    payment_date = models.DateField(auto_now_add=True)
-    delivery_type = models.TextField(max_length=30, default='не указан', verbose_name='способ доставки')
-    payment_type = models.TextField(max_length=30, default='не указан', verbose_name='способ оплаты')
-    total_cost = models.IntegerField(default=0, verbose_name='общая стоимость заказа')
-    status = models.TextField(max_length=30, default='не указан', verbose_name='статус оплаты')
-    city = models.TextField(max_length=30, default='не указан', verbose_name='город доставки')
-    address = models.TextField(max_length=30, default='не указан', verbose_name='адрес доставки')
-
-    class Meta:
-        verbose_name = 'История покупок'
-        verbose_name_plural = 'Истории покупок'
-
-    def __str__(self):
-        return self.user_order.name
 
 
-#====================================модели заказа==========================================================
+
+#====================================модели заказа/оплата==========================================================
 
 class Order(models.Model):
     """
@@ -277,7 +264,23 @@ class OrderProduct(models.Model):
         verbose_name = _('order product')
         verbose_name_plural = _('order products')
 
+class OrderHistory(models.Model):  # история покупок пользователя
+    user_order = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name='пользователь', null=True)
+    product_order = models.ForeignKey('Product', on_delete=models.CASCADE, verbose_name='товар')
+    payment_date = models.DateField(auto_now_add=True)
+    delivery_type = models.TextField(max_length=30, default='не указан', verbose_name='способ доставки')
+    payment_type = models.TextField(max_length=30, default='не указан', verbose_name='способ оплаты')
+    total_cost = models.IntegerField(default=0, verbose_name='общая стоимость заказа')
+    status = models.TextField(max_length=30, default='не указан', verbose_name='статус оплаты')
+    city = models.TextField(max_length=30, default='не указан', verbose_name='город доставки')
+    address = models.TextField(max_length=30, default='не указан', verbose_name='адрес доставки')
 
+    class Meta:
+        verbose_name = 'История покупок'
+        verbose_name_plural = 'Истории покупок'
+
+    def __str__(self):
+        return self.user_order.name
 
 class ViewedProduct(models.Model):
     """ Модель просмотренного товара """
@@ -310,3 +313,27 @@ class Payment(models.Model):
         return "%s"%self.name
 
 
+#====================================================Singleton Model====================================================
+
+class SingletonModel(models.Model):
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        self.__class__.objects.exclude(id=self.id).delete()
+        super(SingletonModel, self).save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        try:
+            return cls.objects.get()
+        except cls.DoesNotExist:
+            return cls()
+
+
+class SiteSettings(SingletonModel):
+    site_url = models.URLField(verbose_name=_('Website url'), max_length=256)
+    title = models.CharField(verbose_name=_('Title'), max_length=256)
+
+    def __str__(self):
+        return 'Configuration'

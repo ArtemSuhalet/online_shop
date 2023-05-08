@@ -142,7 +142,7 @@
                                     <div class="Comments comments-js">
                                         <div id="comments" class="Comments">
                                             <input type="hidden" name="slug" value="{{ product.slug }}">
-                                        {% for comment in comments %}
+                                            {% for comment in comments %}
                                             <div class="Comment">
                                                 <div class="Comment-column Comment-column_pict">
                                                     <div class="Comment-avatar" style="background-image: url('{{ comment.user.avatar_url }}'); background-size: cover;">
@@ -154,30 +154,19 @@
                                                             <strong class="Comment-title">{{ comment.author }}
                                                             </strong><span class="Comment-date">{{ comment.added|date:"F / d / o G:i" }}</span>
                                                         </div>
-                                                        </header>
+                                                    </header>
                                                         <div class="Comment-content">{{ comment.content }}
                                                         </div>
-                                                    </div>
-                                                  </div>
-                                                  {% endfor %}
-                                                    </div>
-                                                  {% if comments.paginator.num_pages > 1 %}
-                                                    <button type="Submit" id="btn_page" class="btn btn_default btn_sm">
-                                                    <select id="id_page" name="page" multiple>
-                                                        {% if comments.has_previous %}
-                                                        <option class="btn btn_default btn_sm" value="1">1</option>
-                                                        <option class="btn btn_default btn_sm" value="{{ comments.previous_page_number }}">&laquo; </option>
-                                                        {% endif %}
-                                                        <option class="btn btn_default btn_sm active" value="{{ comments.number }}">{{ comments.number }}</option>
-                                                        {% if comments.has_next %}
-                                                        <option class="btn btn_default btn_sm" value="{{comments.next_page_number }}"> &raquo;</option>
-                                                        <option class="btn btn_default btn_sm" value="{{ comments.paginator.num_pages }}"> &raquo;&raquo;</option>
-                                                        {% endif %}
-                                                    </select>
-                                                        </button>
-                                                  {% endif %}
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                            {% include 'includes/pagination.html'  %}
+                                        </div>
                                     </div>
                                 </form>
+
+
+
                                     <header class="Section-header Section-header_product">
                                       <h3 class="Section-title">{% trans 'Add Review' %}
                                       </h3>

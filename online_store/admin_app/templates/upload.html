@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+
+{%block header %}
+  {% include 'includes/header.html' %}
+{% endblock %}
+
+{% block content %}
+
+
+<h2>загрузка файла</h2>
+  <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">загрузить</button>
+    </form>
+
+
+
+{% endblock %}

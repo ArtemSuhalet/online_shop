@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'my_store_app',
     'rest_framework',
     'taggit',
+    'admin_app',
 ]
 
 MIDDLEWARE = [
@@ -57,6 +58,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'my_store_app.context_processors.cart',
+                'my_store_app.context_processors.load_settings',
             ],
         },
     },
@@ -134,3 +136,8 @@ CART_SESSION_ID = 'cart'
 # Custom messages codes
 SUCCESS_ADD_TO_CART = 210
 ERROR_ADD_TO_CART = 310
+
+
+CATALOG_MIN_PRICE = 1
+CATALOG_MAX_PRICE = 100
+

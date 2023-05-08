@@ -27,8 +27,8 @@
             </header>
             <div class="Section-columnContent">
               <form class="form"
-                    action="/api/catalog"
-                    method="post"
+                    action="{% 'catalog_url' %}"
+                    method="get"
                     @submit.prevent="getCatalogs(1)"
               >
                 {% csrf_token %}
@@ -41,10 +41,10 @@
                            name="price"
                            type="text"
                            data-type="double"
-                           :data-min="filters.price.minValue"
-                           :data-max="filters.price.maxValue"
-                           :data-from="filter.minPrice"
-                           :data-to="filter.maxPrice"
+                           :data-min="{{ mini }}"
+                           :data-max="{{ maxi }}"
+                           :data-from="{{ mini }}"
+                           :data-to="{{ midi }}"
                     />
                     <input type="hidden" name="minPrice" v-model="filters.price.currentFromValue">
                     <input type="hidden" name="maxPrice" v-model="filters.price.currentToValue">

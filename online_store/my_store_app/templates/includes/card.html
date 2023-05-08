@@ -18,7 +18,7 @@
 
                                     <div class="Card-category">{{elem.category}}
                                     </div>
-                                    <div class="Card-hover"><a class="Card-btn" href="{% url 'cart_add' elem.id %}"><img src=" assets/img/icons/card/cart.svg " alt="cart.svg" /></a>
+                                    <div class="Card-hover"><a class="Card-btn" href="{{elem.get_absolute_url}}"><img src="/static/assets/img/icons/card/cart.svg " alt="cart.svg" /></a>
 
                                     </div>
                                 </div>
@@ -26,5 +26,5 @@
                         </div>
                         {% endfor %}
                     </div>
-                    {% include 'includes/pagination.html' %}
+                    {% include 'includes/pagination.html' with page=posts %}
                 </div>

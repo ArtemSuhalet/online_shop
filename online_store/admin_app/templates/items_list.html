@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+
+{%block header %}
+  {% include 'includes/header.html' %}
+{% endblock %}
+
+{% block content %}
+
+<h2>Список items</h2>
+    {% if items_list %}
+    <ul>
+        {% for item in items_list %}
+
+            <p>
+                <a href="{% url 'admin_app:item_detail' item.pk %}">{{item}}</a>
+
+            </p>
+        {%endfor%}
+    {%endif%}
+        {% if is_paginated %}
+        <div class="pagination">
+                <span class="page-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+                    <span class="page-current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+<div class="ProductCard-cart">
+    <a href="{% url 'admin_app:create_item'  %}">
+        <div class="ProductCard-cartElement">
+            <button type="submit" class="btn btn_primary">
+                <img class="btn-icon" src="" alt=""><span class="btn-content">{% trans 'create item' %}</span>
+            </button>
+        </div>
+    </a>
+</div>
+
+
+
+
+{% endblock %}

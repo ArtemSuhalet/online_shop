@@ -15,9 +15,12 @@ urlpatterns = [
     path('account/', account_view, name='account'),
     path('profile/', UserEditFormView.as_view(), name='profile'),
     path('catalog/', FullCatalogView.as_view(), name="catalog_url"),
+    path('catalog/<tag_slug>/', tags, name='catalog_by_tag'),
+    path('post/', post, name='post'),
     path('product/<slug:slug>/', ProductDetailView.as_view(), name='product'),
     path('get_reviews/', get_reviews, name='get_reviews'),
     path('post_review/', post_review, name='post_review'),
+    path('search/', Search.as_view(), name='search'),
     path('add_viewed/', add_viewed, name='add_viewed'),
     #корзина
     path('cart', cart_detail, name='cart_detail'),

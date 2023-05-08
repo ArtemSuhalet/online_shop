@@ -47,9 +47,7 @@
 
                                 <a class="menu-link" href="{% url 'catalog_url' %}">Каталог</a>
 
-                            </li>
-                            <li class="menu-item"><a class="menu-link" href="comparison.html">Сравнение</a>
-                            </li>
+
                         </ul>
                     </div>
                 </nav>
@@ -61,7 +59,7 @@
                             <div class="dropdown-content">
                                 <a class="dropdown-content-a" href="{% url 'account' %}">Личный кабинет</a>
                                 {% if request.user.is_superuser %}
-                                <a class="dropdown-content-a" href="account.html">Административный раздел</a>
+                                <a class="dropdown-content-a" href="{% url 'admin_app:admin_list' %}">Административный раздел</a>
                                 {% endif %}
                                 <a class="dropdown-content-a" href="/logout/">Выход</a>
                             </div>

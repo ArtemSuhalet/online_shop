@@ -66,7 +66,7 @@
                                             </div>
                                         </form>
                                     </div>
-                                    <div class="Cart-block Cart-block_delete"><a class="Cart-delete" href="{% url 'cart_remove' item.product.id %}"><img src="assets/img/icons/card/delete.svg" alt="delete.svg" /></a>
+                                    <div class="Cart-block Cart-block_delete"><a class="Cart-delete" href="{% url 'cart_remove' item.product.id %}"><img src="/static/assets/img/icons/card/delete.svg" alt="delete.svg" /></a>
                                     </div>
                                 </div>
                             </div>
@@ -74,7 +74,7 @@
                 {% else %}
                     <div class="Cart-product">
                         <div class="Cart-block Cart-block_row">
-                            <div class="Cart-block Cart-block_pict"><a class="Cart-pict" href="#"><img class="Cart-img" src="assets/img/content/home/card.jpg" alt="card.jpg" /></a>
+                            <div class="Cart-block Cart-block_pict"><a class="Cart-pict" href="#"><img class="Cart-img" src="/static/assets/img/icons/cart.svg" alt="card.jpg" /></a>
                             </div>
                             <div class="Cart-block Cart-block_info"><a class="Cart-title" href="#">{% trans 'Корзина пуста' %}</a>
 

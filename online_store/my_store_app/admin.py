@@ -3,10 +3,10 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 from my_store_app.models import *
 from django.utils.translation import gettext_lazy as _
+from django.db.utils import ProgrammingError
 
-# class SalesAdmin(admin.ModelAdmin):
-#     list_display = ['product', 'shop', 'count', 'dateFrom', 'dateTo']
-#     search_fields = ['product']
+from my_store_app.models import SiteSettings
+
 
 @admin.register(Profile)
 class UserProfileAdmin(admin.ModelAdmin):
@@ -118,7 +118,27 @@ class PaymentAdmin(admin.ModelAdmin):
     search_fields = ['number']
 
 
+class SiteSettingsAdmin(admin.ModelAdmin):
+    # Create a default object on the first page of SiteSettingsAdmin with a list of settings
+    def __init__(self, model, admin_site):
+        super().__init__(model, admin_site)
+        # be sure to wrap the loading and saving SiteSettings in a try catch,
+        # so that you can create database migrations
+        try:
+            SiteSettings.load().save()
+        except ProgrammingError:
+            pass
 
+    # prohibit adding new settings
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    # as well as deleting existing
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+admin.site.register(SiteSettings, SiteSettingsAdmin)
 
 
 admin.site.register(OrderHistory, OrderHistoryAdmin)

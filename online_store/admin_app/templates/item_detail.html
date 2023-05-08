@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+
+{%block header %}
+  {% include 'includes/header.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="Middle Middle_top">
+    <div class="Middle-top">
+        <div class="wrap">
+            <div class="Middle-header">
+                <h1 class="Middle-title">{{ product.name }}</h1>
+                <ul class="breadcrumbs Middle-breadcrumbs">
+                    <li class="breadcrumbs-item"><a href="/">{% trans 'home' %}</a></li>
+                    <li class="breadcrumbs-item breadcrumbs-item_current"><span>Детальная инфа</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="Middle Middle_top">
+        <div class="Section">
+            <div class="wrap">
+                <div class="Product">
+                    <div class="ProductCard">
+                        <div class="ProductCard-look">
+                            <div class="ProductCard-photo">
+                                <img src="{{ product.image_url }}" alt="product.jpg">
+                            </div>
+                            <div class="ProductCard-picts"><a class="ProductCard-pict ProductCard-pict_ACTIVE" href="assets/img/content/home/bigGoods.png"><img src="assets/img/content/home/bigGoods.png" alt="bigGoods.png" /></a><a class="ProductCard-pict" href="assets/img/content/home/slider.png"><img src="assets/img/content/home/slider.png" alt="slider.png" /></a><a class="ProductCard-pict" href="assets/img/content/home/videoca.png"><img src="assets/img/content/home/videoca.png" alt="videoca.png" /></a>
+                            </div>
+                        </div>
+                        <div class="ProductCard-desc">
+                            <div class="ProductCard-header">
+                                <h2 class="ProductCard-title">{{ product.name }}
+                                </h2>
+                                <div class="ProductCard-info">
+                                    <div class="ProductCard-cost">
+                                        <div class="ProductCard-price">{{ product.price }}$
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ProductCard-text">
+                                {{ product.description }}
+                            </div>
+                            <div class="ProductCard-cart">
+                                <a href="{% url 'admin_app:edit_product' product.id  %}">
+
+
+                                <div class="ProductCard-cartElement">
+                                    <button type="submit" class="btn btn_primary">
+                                <img class="btn-icon" src="{% static 'assets/img/icons/card/cart_white.svg' %}" alt="cart_white.svg"><span class="btn-content">{% trans 'edit' %}</span>
+                                    </button>
+                                </div>
+                                </a>
+                            </div>
+                            <div class="ProductCard-footer">
+                                <div class="ProductCard-tags">
+                                    <strong class="ProductCard-tagsTitle">Тэги:
+                                    </strong>
+                                    {% for tag in tags %}
+                                    <a href="{% url 'catalog_url' %}?main_tag={{tag.name}}">{{ tag }}</a>
+                                    {% endfor %}
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+{% endblock %}
