@@ -5,7 +5,6 @@ from my_store_app.views import *
 from django.conf import settings
 from django.conf.urls.static import static
 
-from my_store_app import views
 
 urlpatterns = [
     path('', CategoryView.as_view(), name='index'),
@@ -16,7 +15,6 @@ urlpatterns = [
     path('profile/', UserEditFormView.as_view(), name='profile'),
     path('catalog/', FullCatalogView.as_view(), name="catalog_url"),
     path('menu/', Menu.as_view(), name='menu'),
-    #path('catalog/<tag_slug>/', tags, name='catalog_by_tag'),
     path('post/', post, name='post'),
     path('product/<slug:slug>/', ProductDetailView.as_view(), name='product'),
     path('get_reviews/', get_reviews, name='get_reviews'),

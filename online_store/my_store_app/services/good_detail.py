@@ -104,6 +104,7 @@ class CurrentProduct:
         rating = ProductComment.objects.only('rating') \
             .filter(product_id=self.product.id) \
             .aggregate(Avg('rating'))['rating__avg']
+        print('rating', rating)
         if rating:
             self.product.rating = round(float(rating), 0)
             self.product.save(update_fields=['rating'])

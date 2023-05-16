@@ -10,7 +10,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Sum, Min, Max
 from django.http import HttpRequest, JsonResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from django.template.loader import render_to_string
 from django.urls import reverse_lazy, reverse
 from django.views import View, generic
 from django.views.generic import DetailView, ListView
@@ -22,10 +21,8 @@ from django.contrib.auth.models import User
 import os
 import random
 from my_store_app.services.good_detail import CurrentProduct, context_pagination
-from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
-from my_store_app.services.serv_goods import get_categories
 from my_store_app.services.cart import Cart
 from my_store_app.models import Order
 
@@ -216,9 +213,7 @@ class FullCatalogView(ListView):
 
 def post(request):
 
-    paginator = Paginator(Product.objects.all(), 8)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+
     if request.method == 'POST':
         sort_form = SortForm(request.POST)
         products = Product.objects.all()
@@ -235,8 +230,10 @@ def post(request):
 
             elif needed_sort == 'review':
                 products = sorted(products, key=lambda x: x.product_comments.count())
-
-        return render(request, 'catalog.html', {'sort_form': sort_form, 'products': products})
+        paginator = Paginator(products, 8)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+        return render(request, 'catalog.html', {'sort_form': sort_form,  'page_obj':page_obj})
 
 
 class Search(ListView):
@@ -262,7 +259,6 @@ class ProductDetailView(DetailView):
     context_object_name = 'product'
     template_name = 'product.html'
     slug_url_kwarg = 'slug'
-    paginate_by = 3
 
     def get_context_data(self,  **kwargs) -> Dict:
         context = super().get_context_data(**kwargs)
@@ -273,8 +269,6 @@ class ProductDetailView(DetailView):
 
         context = {
             'reviews_count': reviews.count(),
-            # 'comments': context_pagination(self.request, reviews
-            #                                ),
             'comments': reviews,
             'form': ReviewForm(),
             'specifications': product.get_specifications,
@@ -291,24 +285,12 @@ def get_reviews(self, request: HttpRequest) -> JsonResponse:
     ::Страница: Детальная страница продукта
     """
     slug = request.GET.get('slug')
-    page = request.GET.get('page')
+
     product = CurrentProduct(slug=slug)
     reviews = product.get_reviews
     print('reviews', reviews)
-    paginator = Paginator(reviews, 3)
-    page_obj = paginator.get_page(page)
-    try:
-        posts = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer deliver the first page
-        posts = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range deliver last page of results
-        posts = paginator.page(paginator.num_pages)
-    #reviews = self.product.product_comments.all()
-    # return JsonResponse({**product.get_review_page(reviews, page),
-    #                      'slug': slug}, safe=False)
-    return reviews #render(request, 'product.html', {'comments':reviews, 'page_obj': page_obj, 'posts':posts})
+
+    return reviews
 
 def post_review(request: HttpRequest):
     """
@@ -324,23 +306,6 @@ def post_review(request: HttpRequest):
         product.update_product_rating()
 
     return redirect(request.META.get('HTTP_REFERER'))
-
-
-# register = template.Library()
-#
-#
-# @register.simple_tag()
-# def get_tree_dict() -> Dict:
-#     categories = get_categories()
-#     res_dict = dict()
-#     for elem in categories:
-#         if elem.id:
-#             res_dict.setdefault(elem.name, [])
-#             res_dict[elem.name].append(elem)
-#         else:
-#             res_dict.setdefault(elem, [])
-#     return res_dict
-
 
 
 #===================================заказы/корзина/оплата=============================================
@@ -509,7 +474,6 @@ class OrderStepOneAnonym(View):
         if form.is_valid():
             old_cart = Cart(self.request)
             user = form.save()
-            #reset_phone_format(instance=user)
             login(request, get_auth_user(data=form.cleaned_data))
             new_cart = Cart(self.request)
             new_cart = old_cart

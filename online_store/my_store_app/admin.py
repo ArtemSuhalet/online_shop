@@ -96,11 +96,6 @@ class OrderHistoryAdmin(admin.ModelAdmin):
     search_fields = ['user_order']
 
 
-# class OrderAdmin(admin.ModelAdmin):
-#     list_display = ['product_order', 'count', 'total_price',
-#                     'date', 'free_delivery']
-#     search_fields = ['product_order']
-
 
 class OrderProductInline(admin.TabularInline):
     model = OrderProduct

@@ -13,20 +13,8 @@ from django.core.exceptions import PermissionDenied
 from admin_app.models import *
 
 def admin_view(request):
-    # items = Product.objects.all()
-    # categories = ProductCategory.objects.all()
-    # orders = Order.objects.all()
-    # reviews = ProductComment.objects.all()
-    # render(request, 'admin_list.html', {'categories': categories,
-    #                                     'items': items,
-    #                                     'orders': orders,
-    #                                     'reviews': reviews,
-    #                                     })
-    time = _('Сейчас - %(date)s %(time)s') % {
-        'date': date_format(datetime.datetime.now().date(), format='SHORT_DATE_FORMAT', use_l10n=True),
-        'time': datetime.datetime.now().time().replace(microsecond=0)
-    }
-    return render(request, 'admin_list.html', context={'time': time})
+
+    return render(request, 'admin_list.html')
 
 
 class ItemsListView(ListView):
