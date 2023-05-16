@@ -59,7 +59,7 @@ class ProductCategory(models.Model):
         null=True,
         verbose_name=_('category title')
     )
-    slug = models.SlugField(verbose_name=_('slug'), unique=True)
+    slug = models.SlugField(verbose_name=_('slug'))
     description = models.TextField(max_length=255, null=True, blank=True, verbose_name=_('description'))
     icon = models.ImageField(verbose_name=_('icon'))
     image = models.ImageField(verbose_name=_('image'))
@@ -96,7 +96,7 @@ class Product(models.Model):
     )
     name = models.CharField(max_length=100, verbose_name=_('product name'))
     code = models.CharField(max_length=10, null=True, blank=True, verbose_name=_('product code'))
-    slug = models.SlugField(db_index=True, verbose_name=_('product slug'), unique=True)
+    slug = models.SlugField(db_index=True, verbose_name=_('product slug'))
     image = models.ImageField(verbose_name=_('product image'))
     description = models.TextField(max_length=2550, null=True, verbose_name=_('product description'))
     rating = models.FloatField(null=True, default=0, verbose_name=_('rating'))

@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
-
+{% load category_tags %}
 {% block header %}
 {% include 'includes/header.html' %}
 {% endblock %}
 
 {% block content %}
-<div class="Middle Middle_top">
+  <div class="Middle Middle_top">
     <div class="Middle-top">
       <div class="wrap">
         <div class="Middle-header">
@@ -99,13 +99,15 @@
             </header>
             <div class="Section-columnContent">
               <div class="buttons">
-                  {% for tag in object_list.tags.all%}
+
+                  {% get_categories as categories %}
+                  {% for cat in categories %}
 
 
                 <!-- Получаем популярные тэги -->
-                <a href="{% url 'catalog_by_tag' tag.slug %}"  >
+                <a href="{% url 'menu' %}?slug={{cat.slug}}"  >
 
-                  {{  tag.name }}
+                  #{{  cat }}
                 </a>
 
 
@@ -126,7 +128,6 @@
               {{form}}
               {%endfor%}
 
-                {% if products %}
                 {% for product in products %}
                 <div v-for="" class="Card" >
                     <a class="Card-picture" href="{{product.get_absolute_url}}"><img src="{{ product.image_url }}" alt="card.title"/></a>
@@ -144,7 +145,6 @@
                     </div>
                 </div>
                 {%endfor%}
-                {%endif%}
 
             </form>
           </div>
@@ -160,7 +160,6 @@
                   <div class="Card-category">{{elem.category}}</div>
                   <div class="Card-hover">
                     <div class="Card-hover"><a class="Card-btn" href="{{elem.get_absolute_url}}"><img src="/static/assets/img/icons/card/cart.svg " alt="cart.svg" /></a>
-
                     </div>
                   </div>
                 </div>

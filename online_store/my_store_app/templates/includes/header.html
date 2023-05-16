@@ -1,6 +1,6 @@
 {% load static %}
 {% load i18n %}
-
+{% load category_tags %}
 
 {% include 'includes/menu_head.html' %}
 <div class="Header-searchWrap">
@@ -14,26 +14,19 @@
               </div>
             </div>
             <div class="CategoriesButton-content">
+                {% get_categories as categories %}
                 {% for cat in categories %}
               <!-- Получаем категории и подкатегории  -->
-              <div class="CategoriesButton-link" v-for="category in categories"><a href="{% url 'catalog_url' %}?cat.slug">
+
+              <div class="CategoriesButton-link" v-for="category in categories"><a href="{% url 'menu' %}?slug={{cat.slug}}">
                 <div class="CategoriesButton-icon"><img :src="{{cat.icon_url}}" :alt="cat.image.alt" />
                 </div><span class="CategoriesButton-text">${{ cat.name }}$</span></a>
 
-                <a v-if="category.subcategories.length > 0" class="CategoriesButton-arrow" href="{% url 'product' slug=cat.slug %}"></a>
-                    {% for prod in date %}
-                <div v-if="category.subcategories.length > 0" class="CategoriesButton-submenu">
-                  <div v-for="subcategory in category.subcategories">
-                    <a class="CategoriesButton-link" href="{% url 'product' slug=prod.slug %}">
-                    <div class="CategoriesButton-icon">
-                      <img src="" :alt="subcategory.alt"/>
-                    </div>
-                    <span class="CategoriesButton-text">${{ prod }}$</span></a>
-                  </div>
-                </div>
-                  {%endfor%}
+
+
+
+
               </div>
-              <!-- Получаем категории и подкатегории  -->
                 {% endfor %}
             </div>
           </div>

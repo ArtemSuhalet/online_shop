@@ -21,18 +21,12 @@ from django.contrib.auth.views import LogoutView, LoginView
 from django.contrib.auth.models import User
 import os
 import random
-from taggit.models import Tag
-from my_store_app.services.serv_goods import CatalogByCategoriesMixin
 from my_store_app.services.good_detail import CurrentProduct, context_pagination
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
-#from my_store_app.services.cart_serv import CartService, check_stock, DecimalEncoder, AnonymCart
-#import braintree
 from my_store_app.services.serv_goods import get_categories
-
 from my_store_app.services.cart import Cart
-
 from my_store_app.models import Order
 
 
@@ -133,9 +127,6 @@ class CategoryView(View):
         spec = Product.objects.all().order_by('-rating')[:1]
 
         categories = ProductCategory.objects.all()
-        cat = self.request.GET.get('category')
-        print('category', cat)
-        products = Product.objects.filter(category__slug=cat).all()
 
         return render(request, 'index.html', {'categories': categories,
                                               'date': date,
@@ -144,14 +135,30 @@ class CategoryView(View):
                                               'limited_edition': limited_edition,
                                               'banners': randombanners,
                                               'spec': spec,
-                                              'products': products,
                                               })
+
+class Menu(ListView):
+    template_name = 'catalog.html'
+    context_object_name = 'products'
+    #paginate_by = 4
+    def get_queryset(self):
+        cat = self.request.GET.get('slug')
+        print('cat', cat)
+        products = Product.objects.filter(category__slug=cat).all()
+        print('products', products)
+        return products
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['slug'] = self.request.GET.get('slug')
+        print('category', context['slug'])
+        return context
 
 
 class FullCatalogView(ListView):
 
     model = Product
-    paginate_by = 8
+    paginate_by = 3
     template_name = 'catalog.html'
 
     def get_context_data(self, **kwargs):
@@ -207,22 +214,11 @@ class FullCatalogView(ListView):
         )
         return new_context
 
-def tags(request, tag_slug=None):
-    object_list = Product.published.all()
-    print(object_list)
-    tag = None
-
-    if tag_slug:
-        tag = get_object_or_404(Tag, slug=tag_slug)
-        object_list = object_list.filter(tags__in=[tag])
-
-
-    return render(request, 'catalog.html', {'tag': tag})
 def post(request):
 
-    # paginator = Paginator(Product.objects.all(), 8)
-    # page_number = request.GET.get("page")
-    # page_obj = paginator.get_page(page_number)
+    paginator = Paginator(Product.objects.all(), 8)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
     if request.method == 'POST':
         sort_form = SortForm(request.POST)
         products = Product.objects.all()
@@ -242,93 +238,6 @@ def post(request):
 
         return render(request, 'catalog.html', {'sort_form': sort_form, 'products': products})
 
-
-# def min():
-#     return Product.objects.all().aggregate(Min('price'))
-#
-# def max():
-#     return Product.objects.all().aggregate(Max('price'))
-
-# class FullCatalogView(CatalogByCategoriesMixin, View):
-#     """
-#     Класс-контроллер для отображения каталога-списка всех товаров
-#     ::Страница: Каталог
-#     """
-#
-#     def get(self, request):
-#         """
-#         метод для гет-запроса контроллера для отображения каталога всех товаров с учётом параметров гет-запроса
-#         возможные параметры
-#             search - запрос пользователя из поисковой строки
-#             tag - выбранный тэг
-#             sort_type - тип сортировки
-#             page - страница пагинации
-#             slug - слаг категории товаров
-#         :return: рендер страницы каталога товаров определенной категории
-#         """
-#         # получаем параметры гет-запроса
-#         search, tag, sort_type, page, slug = self.get_request_params_for_full_catalog(request)
-#         print('1',search, '2',tag, '3',sort_type,'4', page,'5', slug)
-#         # получаем товары в соответсвии с параметрами гет-запроса
-#         row_items_for_catalog, tags = self.get_full_data(tag, search)
-#         print(row_items_for_catalog, tags)
-#         row_items_for_catalog = self.add_sale_prices_in_goods_if_needed(row_items_for_catalog)
-#
-#         # сортируем товары
-#         items_for_catalog, *_ = self.simple_sort(row_items_for_catalog, sort_type)
-#         # пагинатор
-#         paginator = Paginator(items_for_catalog, 8)
-#         paginator = Paginator(Product.objects.all(), 4)
-#         page_number = request.GET.get("page")
-#         page_obj = paginator.get_page(page_number)
-#
-#         try:
-#             posts = paginator.page(page_number)
-#         except PageNotAnInteger:
-#             posts = paginator.page(1)
-#         except EmptyPage:
-#             posts = paginator.page(paginator.num_pages)
-#
-#         #кастомные параметры для рэнж-инпута в фильтре каталога
-#         maxi = self.get_max_price(items_for_catalog)
-#         mini = self.get_min_price(items_for_catalog)
-#         midi = round((maxi + mini) / 2, 2)
-#         print(maxi, mini, 'prices')
-#
-#         return render(
-#             request,
-#             'catalog.html',
-#             context={
-#                 'page_obj': page_obj,
-#                 'posts': posts,
-#                 'mini': mini,
-#                 'maxi': maxi,
-#                 'midi': midi,
-#                 'tags': tags,
-#                 'search': search,
-#                 'tag': tag,
-#
-#             })
-#
-#     def post(self, request):
-#         if request.method == 'POST':
-#             sort_form = SortForm(request.POST)
-#             products = Product.objects.all()
-#             if sort_form.is_valid():
-#                 needed_sort = sort_form.cleaned_data.get('sort_form')
-#                 if needed_sort == 'pop':
-#                     products = products.order_by('rating')
-#
-#                 elif needed_sort == 'price':
-#                     products = products.order_by('price')
-#
-#                 elif needed_sort == 'name':
-#                     products = products.order_by('name')
-#
-#                 elif needed_sort == 'review':
-#                     products = sorted(products, key=lambda x: x.product_comments.count())
-#
-#             return render(request, 'catalog.html', {'sort_form': sort_form, 'products': products})
 
 class Search(ListView):
     template_name = 'catalog.html'
@@ -359,6 +268,7 @@ class ProductDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         product = CurrentProduct(instance=context['product'])
         reviews = product.get_reviews
+        print('reviews', reviews)
         cart_product_form = CartAddProductForm()
 
         context = {
@@ -384,6 +294,7 @@ def get_reviews(self, request: HttpRequest) -> JsonResponse:
     page = request.GET.get('page')
     product = CurrentProduct(slug=slug)
     reviews = product.get_reviews
+    print('reviews', reviews)
     paginator = Paginator(reviews, 3)
     page_obj = paginator.get_page(page)
     try:
@@ -415,22 +326,20 @@ def post_review(request: HttpRequest):
     return redirect(request.META.get('HTTP_REFERER'))
 
 
-
-
-register = template.Library()
-
-
-@register.simple_tag()
-def get_tree_dict() -> Dict:
-    categories = get_categories()
-    res_dict = dict()
-    for elem in categories:
-        if elem.id:
-            res_dict.setdefault(elem.name, [])
-            res_dict[elem.name].append(elem)
-        else:
-            res_dict.setdefault(elem, [])
-    return res_dict
+# register = template.Library()
+#
+#
+# @register.simple_tag()
+# def get_tree_dict() -> Dict:
+#     categories = get_categories()
+#     res_dict = dict()
+#     for elem in categories:
+#         if elem.id:
+#             res_dict.setdefault(elem.name, [])
+#             res_dict[elem.name].append(elem)
+#         else:
+#             res_dict.setdefault(elem, [])
+#     return res_dict
 
 
 
@@ -616,7 +525,6 @@ class OrderStepOneAnonym(View):
             order.email = email
             order.phone = phone
             order.save()
-            #kwargs['order_id'] = order.id
             order_id = order.id
             return redirect('order_step_two', order_id)
 
@@ -795,7 +703,6 @@ def randomnumber():
 def payment_process(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     pay = get_object_or_404(Payment, code=order_id)
-    print(type(pay.number), 'fqlb')
     if pay.number % 10 == 0 or len(str(pay.number)) % 2 != 0:
         error = ['IndexError', 'KeyError', 'ValueError', 'Http404']
         order.payment_error = random.choice(error)

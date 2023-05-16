@@ -17,6 +17,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 class ProductCategoryAdmin(admin.ModelAdmin):
     list_display = ['name', 'image']
     search_fields = ['name']
+    prepopulated_fields = {"slug": ("name",)}
 
 class SpecificationsInline(admin.TabularInline):
     model = Specifications
@@ -28,6 +29,7 @@ class CommentsInline(admin.TabularInline):
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'category', 'is_published', 'limited', 'get_tags', 'price', 'quantity', 'slug', 'rating']
     search_fields = ['name', 'category']
+    prepopulated_fields = {"slug": ("name",)}
 
     inlines = [SpecificationsInline, CommentsInline]
 
