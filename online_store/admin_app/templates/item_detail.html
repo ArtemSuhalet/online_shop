@@ -29,8 +29,7 @@
                             <div class="ProductCard-photo">
                                 <img src="{{ product.image_url }}" alt="product.jpg">
                             </div>
-                            <div class="ProductCard-picts"><a class="ProductCard-pict ProductCard-pict_ACTIVE" href="assets/img/content/home/bigGoods.png"><img src="assets/img/content/home/bigGoods.png" alt="bigGoods.png" /></a><a class="ProductCard-pict" href="assets/img/content/home/slider.png"><img src="assets/img/content/home/slider.png" alt="slider.png" /></a><a class="ProductCard-pict" href="assets/img/content/home/videoca.png"><img src="assets/img/content/home/videoca.png" alt="videoca.png" /></a>
-                            </div>
+
                         </div>
                         <div class="ProductCard-desc">
                             <div class="ProductCard-header">
@@ -57,16 +56,7 @@
                                 </div>
                                 </a>
                             </div>
-                            <div class="ProductCard-footer">
-                                <div class="ProductCard-tags">
-                                    <strong class="ProductCard-tagsTitle">Тэги:
-                                    </strong>
-                                    {% for tag in tags %}
-                                    <a href="{% url 'catalog_url' %}?main_tag={{tag.name}}">{{ tag }}</a>
-                                    {% endfor %}
 
-                                </div>
-                            </div>
                         </div>
                     </div>
 
