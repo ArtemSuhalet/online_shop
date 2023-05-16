@@ -3,7 +3,6 @@ from admin_app.forms import *
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
-from django.utils.formats import date_format
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView
