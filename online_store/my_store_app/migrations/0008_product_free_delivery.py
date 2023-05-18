@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('my_store_app', '0007_sitesettings_alter_payment_number'),
+        ("my_store_app", "0007_sitesettings_alter_payment_number"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='free_delivery',
-            field=models.BooleanField(default=False, verbose_name='free delivery'),
+            model_name="product",
+            name="free_delivery",
+            field=models.BooleanField(default=False, verbose_name="free delivery"),
         ),
     ]

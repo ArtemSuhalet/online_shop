@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('my_store_app', '0009_rename_free_delivery_product_is_free_delivery'),
+        ("my_store_app", "0009_rename_free_delivery_product_is_free_delivery"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='product',
-            name='slug',
-            field=models.SlugField(verbose_name='product slug'),
+            model_name="product",
+            name="slug",
+            field=models.SlugField(verbose_name="product slug"),
         ),
         migrations.AlterField(
-            model_name='productcategory',
-            name='slug',
-            field=models.SlugField(verbose_name='slug'),
+            model_name="productcategory",
+            name="slug",
+            field=models.SlugField(verbose_name="slug"),
         ),
     ]

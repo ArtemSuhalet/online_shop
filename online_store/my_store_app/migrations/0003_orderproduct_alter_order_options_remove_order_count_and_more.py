@@ -7,130 +7,199 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('my_store_app', '0002_product_price_product_quantity'),
+        ("my_store_app", "0002_product_price_product_quantity"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='OrderProduct',
+            name="OrderProduct",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('final_price', models.DecimalField(decimal_places=2, default=0, max_digits=10, verbose_name='final_price')),
-                ('quantity', models.IntegerField(default=1, null=True, verbose_name='quantity')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "final_price",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=10,
+                        verbose_name="final_price",
+                    ),
+                ),
+                (
+                    "quantity",
+                    models.IntegerField(default=1, null=True, verbose_name="quantity"),
+                ),
             ],
             options={
-                'verbose_name': 'order product',
-                'verbose_name_plural': 'order products',
+                "verbose_name": "order product",
+                "verbose_name_plural": "order products",
             },
         ),
         migrations.AlterModelOptions(
-            name='order',
-            options={'verbose_name': 'order', 'verbose_name_plural': 'orders'},
+            name="order",
+            options={"verbose_name": "order", "verbose_name_plural": "orders"},
         ),
         migrations.RemoveField(
-            model_name='order',
-            name='count',
+            model_name="order",
+            name="count",
         ),
         migrations.RemoveField(
-            model_name='order',
-            name='date',
+            model_name="order",
+            name="date",
         ),
         migrations.RemoveField(
-            model_name='order',
-            name='free_delivery',
+            model_name="order",
+            name="free_delivery",
         ),
         migrations.RemoveField(
-            model_name='order',
-            name='price',
+            model_name="order",
+            name="price",
         ),
         migrations.RemoveField(
-            model_name='order',
-            name='product_order',
+            model_name="order",
+            name="product_order",
         ),
         migrations.AddField(
-            model_name='order',
-            name='address',
-            field=models.TextField(blank=True, max_length=255, null=True, verbose_name='address'),
+            model_name="order",
+            name="address",
+            field=models.TextField(
+                blank=True, max_length=255, null=True, verbose_name="address"
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='braintree_id',
-            field=models.CharField(blank=True, max_length=150, verbose_name='transaction id'),
+            model_name="order",
+            name="braintree_id",
+            field=models.CharField(
+                blank=True, max_length=150, verbose_name="transaction id"
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='city',
-            field=models.CharField(blank=True, max_length=25, null=True, verbose_name='city'),
+            model_name="order",
+            name="city",
+            field=models.CharField(
+                blank=True, max_length=25, null=True, verbose_name="city"
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='customer',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='orders', to=settings.AUTH_USER_MODEL, verbose_name='customer'),
+            model_name="order",
+            name="customer",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="orders",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="customer",
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='delivery',
-            field=models.CharField(choices=[('reg', 'Regular'), ('exp', 'Express')], default='reg', max_length=3, verbose_name='delivery'),
+            model_name="order",
+            name="delivery",
+            field=models.CharField(
+                choices=[("reg", "Regular"), ("exp", "Express")],
+                default="reg",
+                max_length=3,
+                verbose_name="delivery",
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='delivery_cost',
-            field=models.DecimalField(decimal_places=2, default=0, max_digits=10, verbose_name='Delivery cost'),
+            model_name="order",
+            name="delivery_cost",
+            field=models.DecimalField(
+                decimal_places=2, default=0, max_digits=10, verbose_name="Delivery cost"
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='email',
-            field=models.EmailField(blank=True, max_length=254, null=True, verbose_name='email'),
+            model_name="order",
+            name="email",
+            field=models.EmailField(
+                blank=True, max_length=254, null=True, verbose_name="email"
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='fio',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='name and lastname'),
+            model_name="order",
+            name="fio",
+            field=models.CharField(
+                blank=True, max_length=100, null=True, verbose_name="name and lastname"
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='in_order',
-            field=models.BooleanField(default=False, verbose_name='in order'),
+            model_name="order",
+            name="in_order",
+            field=models.BooleanField(default=False, verbose_name="in order"),
         ),
         migrations.AddField(
-            model_name='order',
-            name='ordered',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='order placement date'),
+            model_name="order",
+            name="ordered",
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="order placement date"
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='paid',
-            field=models.BooleanField(default=False, verbose_name='order is payed'),
+            model_name="order",
+            name="paid",
+            field=models.BooleanField(default=False, verbose_name="order is payed"),
         ),
         migrations.AddField(
-            model_name='order',
-            name='payment_error',
-            field=models.CharField(blank=True, max_length=50, null=True, verbose_name='payment error'),
+            model_name="order",
+            name="payment_error",
+            field=models.CharField(
+                blank=True, max_length=50, null=True, verbose_name="payment error"
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='payment_method',
-            field=models.CharField(choices=[('card', 'Bank Card'), ('cash', 'From random account')], default='card', max_length=4, verbose_name='payment method'),
+            model_name="order",
+            name="payment_method",
+            field=models.CharField(
+                choices=[("card", "Bank Card"), ("cash", "From random account")],
+                default="card",
+                max_length=4,
+                verbose_name="payment method",
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='phone',
-            field=models.CharField(blank=True, max_length=16, null=True, validators=[django.core.validators.RegexValidator(message='номер телефона необходимо вводить в формате: +999999999 до 15 символов.', regex='^\\+?1?\\d{9,15}$')], verbose_name='phone number'),
+            model_name="order",
+            name="phone",
+            field=models.CharField(
+                blank=True,
+                max_length=16,
+                null=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        message="номер телефона необходимо вводить в формате: +999999999 до 15 символов.",
+                        regex="^\\+?1?\\d{9,15}$",
+                    )
+                ],
+                verbose_name="phone number",
+            ),
         ),
         migrations.DeleteModel(
-            name='Basket',
+            name="Basket",
         ),
         migrations.AddField(
-            model_name='orderproduct',
-            name='order',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='order_products', to='my_store_app.order'),
+            model_name="orderproduct",
+            name="order",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="order_products",
+                to="my_store_app.order",
+            ),
         ),
         migrations.AddField(
-            model_name='orderproduct',
-            name='product',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='order_products', to='my_store_app.product'),
+            model_name="orderproduct",
+            name="product",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="order_products",
+                to="my_store_app.product",
+            ),
         ),
     ]

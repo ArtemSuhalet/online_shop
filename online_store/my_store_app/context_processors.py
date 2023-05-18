@@ -4,8 +4,8 @@ from my_store_app.models import SiteSettings
 
 
 def cart(request):
-    return {'cart': Cart(request)}
+    return {"cart": Cart(request)}
 
 
 def load_settings(request):
-    return {'site_settings': SiteSettings.load()}
+    return {"site_settings": SiteSettings.load()}

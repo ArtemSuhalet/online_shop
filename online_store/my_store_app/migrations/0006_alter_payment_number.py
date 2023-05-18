@@ -5,15 +5,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('my_store_app', '0005_alter_order_phone_alter_payment_name'),
+        ("my_store_app", "0005_alter_order_phone_alter_payment_name"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='payment',
-            name='number',
-            field=models.IntegerField(default=0, validators=[django.core.validators.RegexValidator(message='номер  необходимо вводить в формате: 999999999 до 8 символов.', regex='^\\+?1?\\d{6,8,^5}$')], verbose_name='номер счета'),
+            model_name="payment",
+            name="number",
+            field=models.IntegerField(
+                default=0,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        message="номер  необходимо вводить в формате: 999999999 до 8 символов.",
+                        regex="^\\+?1?\\d{6,8,^5}$",
+                    )
+                ],
+                verbose_name="номер счета",
+            ),
         ),
     ]

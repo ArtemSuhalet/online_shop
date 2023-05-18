@@ -4,22 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('my_store_app', '0001_initial'),
+        ("my_store_app", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='price',
-            field=models.DecimalField(decimal_places=2, default=1, max_digits=10, verbose_name='price'),
+            model_name="product",
+            name="price",
+            field=models.DecimalField(
+                decimal_places=2, default=1, max_digits=10, verbose_name="price"
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='product',
-            name='quantity',
-            field=models.IntegerField(default=2, verbose_name='quantity'),
+            model_name="product",
+            name="quantity",
+            field=models.IntegerField(default=2, verbose_name="quantity"),
             preserve_default=False,
         ),
     ]
